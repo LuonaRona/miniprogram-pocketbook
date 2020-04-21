@@ -1,16 +1,64 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [
+		
 		{
-			"path": "pages/index/index",
+			"path": "pages/tab-bar/PocketBook",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "记账"
+			}
+		},
+		{
+			"path": "pages/pocket-book/pocketBook",
+			"style": {
+				"navigationBarTitleText": "记一笔"
+			}
+		},
+		{
+			"path": "pages/tab-bar/ReportCharts",
+			"style": {
+				"navigationBarTitleText": "报表"
+			}
+		},
+		{
+			"path": "pages/tab-bar/AssetManagement",
+			"style": {
+				"navigationBarTitleText": "我的资产"
+			}
+		},
+		{
+			"path": "pages/asset-management/assetBreakdown",
+			"style": {
+				"navigationBarTitleText": "我的资产"
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
+		"navigationBarTitleText": "记账本",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#7A7E83",
+		"selectedColor": "#FF6781",
+		"backgroundColor": "#FFFFFF",
+		"list": [{
+				"pagePath": "pages/tab-bar/PocketBook",
+				"iconPath": "static/pocket-book.png",
+				"selectedIconPath": "static/pocket-book-h.png",
+				"text": "记账"
+			},
+			{
+				"pagePath": "pages/tab-bar/ReportCharts",
+				"iconPath": "static/report-charts.png",
+				"selectedIconPath": "static/report-charts-h.png",
+				"text": "报表"
+			}, {
+				"pagePath": "pages/tab-bar/AssetManagement",
+				"iconPath": "static/asset-management.png",
+				"selectedIconPath": "static/asset-management-h.png",
+				"text": "资产"
+			}
+		]
 	}
 }

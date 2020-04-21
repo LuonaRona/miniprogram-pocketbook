@@ -1,0 +1,33 @@
+exports.initialAccountData = [{
+  name: "现金",
+  description: "现金账户",
+  balance: 0.00,
+  inTotal: 0.00,
+  outTotal: 0.00,
+  iconPath: "/static/xj.png",
+  bgColor: "background: linear-gradient(to right, #F56C6C, #F48C8C);",
+}, {
+  name: "微信钱包",
+  description: "微信钱包账户",
+  balance: 0.00,
+  inTotal: 0.00,
+  outTotal: 0.00,
+  iconPath: "/static/wx.png",
+  bgColor: "background: linear-gradient(to right, #67C23A, #7BD051);",
+}, {
+  name: "支付宝",
+  description: "支付宝账户",
+  balance: 0.00,
+  inTotal: 0.00,
+  outTotal: 0.00,
+  iconPath: "/static/zfb.png",
+  bgColor: "background: linear-gradient(to right, #409EFF, #5BACFF);",
+}, {
+  name: "银行卡",
+  description: "银行卡账户",
+  balance: 0.00,
+  inTotal: 0.00,
+  outTotal: 0.00,
+  iconPath: "/static/yhk.png",
+  bgColor: "background: linear-gradient(to right, #E6A23C, #FBBF65);",
+}]
