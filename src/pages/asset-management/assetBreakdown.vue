@@ -59,6 +59,7 @@
   </view>
 </template>
 <script>
+import * as _ from 'lodash'
 import { mapGetters } from 'vuex'
 import { precision, formatDate, formatWeek } from '@/utils/index'
 

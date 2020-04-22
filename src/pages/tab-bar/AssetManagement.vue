@@ -28,7 +28,10 @@
           @click="navigateTo(account._id, account.name)">
           <view class="account-name">
             <image :src="account.iconPath" class="account-icon"></image>
-            <text class="account-text">{{ account.name }}</text>
+            <view class="account-title">
+              <text class="title">{{ account.name }}</text><br>
+              <text class="description">{{ account.description }}</text>
+            </view>
           </view>
           <view class="account-balance">{{ account.balance | amount }}</view>
         </view>
@@ -156,6 +159,7 @@ export default {
   border-radius: 20rpx 20rpx 0 0;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: inherit;
 
   &.add {
@@ -164,12 +168,27 @@ export default {
     justify-content: center;
   }
 
-  .account-icon, .account-text {
-    vertical-align: middle;
+  .account-name {
+    display: flex;
+    align-items: center;
+  }
+
+  .account-title {
+    display: inline-block;
+
+    .description {
+      width: 160px;
+      display: block;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
   }
 
   .account-icon {
     margin-right: 10rpx;
+    min-width: 1.5rem;
     width: 1.5rem;
     height: 1.5rem;
     display: inline-block;
