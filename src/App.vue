@@ -62,8 +62,20 @@
       background-color: #FF6781;
   }
 
+  button[disbaled] {
+    opacity: 0.6;
+  }
+
   button[disabled][type=primary] {
     background-color: rgba(255, 103, 129, 0.6);
+  }
+
+  button[type="delete"] {
+    color: #F56C6C;
+    background: transparent;
+  }
+  button[type="delete"]:after {
+    border: 1px solid;
   }
 
 </style>

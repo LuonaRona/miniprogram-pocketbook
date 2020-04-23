@@ -25,7 +25,7 @@
           v-for="account in accountList"
           :key="account.name"
           :style="account.bgColor"
-          @click="navigateTo(account._id, account.name)">
+          @click="navigateToDetail(account._id, account.name)">
           <view class="account-name">
             <image :src="account.iconPath" class="account-icon"></image>
             <view class="account-title">
@@ -35,15 +35,17 @@
           </view>
           <view class="account-balance">{{ account.balance | amount }}</view>
         </view>
-        <!-- <view class="account-item add">
+        <view class="account-item add" @click="navigateToAddAccount">
           <image src="/static/add.png" class="account-icon">
           <text class="account-text">添加账户</text>
-        </view> -->
+        </view>
       </view>
     </view>
   </view>
 </template>
 <script>
+import { mapMutations } from 'vuex'
+
 export default {
   name: 'asset-management',
   data() {
@@ -55,9 +57,15 @@ export default {
     }
   },
   methods: {
-    navigateTo(id, name) {
+    navigateToDetail(id, name) {
       uni.navigateTo({
         url: `/pages/asset-management/assetBreakdown?id=${id}&name=${name}`,
+      })
+    },
+    navigateToAddAccount() {
+      this.setCurrentAccount(undefined)
+      uni.navigateTo({
+        url: '/pages/asset-management/addAccount',
       })
     },
     loadData() {
@@ -76,7 +84,8 @@ export default {
       }, () => {
         uni.hideLoading()
       })
-    }
+    },
+    ...mapMutations(['setCurrentAccount'])
   },
   onShow() {
     this.loadData()

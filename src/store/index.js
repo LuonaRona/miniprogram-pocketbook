@@ -81,6 +81,9 @@ const store = new Vuex.Store({
 		getIconByName(state, name) {
 			return _.find(state.bookkeepingTypes, { name })
 		},
+		getCurrentAccount(state) {
+			return state.currentAccount
+		},
 		isLogined(state) {
 			return state.logined
 		}

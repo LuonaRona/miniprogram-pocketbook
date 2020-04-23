@@ -38,7 +38,7 @@ exports.main = (event, context) => {
     })
   }
 
-  if (!_.isUndefined(balance)) {
+  if (!_.isNil(balance)) {
     return db.collection('account').where({ _id: accountId }).update({
       data: { balance }
     })

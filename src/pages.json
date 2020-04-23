@@ -1,12 +1,6 @@
 {
 	"pages": [
 		{
-			"path": "pages/tab-bar/AssetManagement",
-			"style": {
-				"navigationBarTitleText": "我的资产"
-			}
-		},
-		{
 			"path": "pages/tab-bar/PocketBook",
 			"style": {
 				"navigationBarTitleText": "记账"
@@ -24,11 +18,22 @@
 				"navigationBarTitleText": "报表"
 			}
 		},
-		
+		{
+			"path": "pages/tab-bar/AssetManagement",
+			"style": {
+				"navigationBarTitleText": "我的资产"
+			}
+		},
 		{
 			"path": "pages/asset-management/assetBreakdown",
 			"style": {
-				"navigationBarTitleText": "我的资产"
+				"navigationBarTitleText": "我的资产账户"
+			}
+		},
+		{
+			"path": "pages/asset-management/addAccount",
+			"style": {
+				"navigationBarTitleText": "账户管理"
 			}
 		}
 	],

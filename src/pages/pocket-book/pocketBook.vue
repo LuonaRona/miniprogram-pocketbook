@@ -24,7 +24,10 @@
           :range="accountList"
           range-key="name"
           @change="onAccountChange">
-          <view class="uni-input">{{ accountList[currentAccountListIndex].name }}</view>
+          <view class="uni-input"
+                :class="{ 'error': currentAccountListIndex < 0}">
+            {{ accountList[currentAccountListIndex].name || '账户不存在' }}
+          </view>
         </picker>
       </view>
       <view class="desc">
@@ -54,7 +57,7 @@
     <view class="confirm">
       <button type="primary"
         class="primary-btn"
-        :disabled="primaryBtnDisabled"
+        :disabled="primaryBtnDisabled || currentAccountListIndex < 0"
         @click="submit">提交</button>
       <button type="warn"
         v-if="currentPocketbook"
@@ -124,15 +127,18 @@ export default {
       this.currentIconItem = value
     },
     submit() {
+      if (this.currentAccountListIndex < 0) { return }
+
       this.primaryBtnDisabled = true
       uni.showLoading({ title: '正在提交数据...' })
-      const { type, date, description, amount, currentIconItem, currentAccountListIndex } = this
+      const { type, date, description, currentIconItem, currentAccountListIndex } = this
       const account_id = this.accountList[currentAccountListIndex]._id
       const [current_year, current_month, current_day] = getYearMonthDayArray(formatDate(date))
+      const amount = parseFloat(precision(amount))
       const data = {
         type,
         account_id,
-        amount: parseFloat(precision(amount)),
+        amount: _.isNumber(amount) ? amount : 0,
         current_year,
         current_month,
         current_day,
@@ -227,6 +233,10 @@ export default {
 
   .uni-input {
     font-size: 28rpx;
+
+    &.error {
+      color: #F56C6C;
+    }
   }
 
   .icon {

@@ -56,11 +56,24 @@
         </view>
       </view>
     </view>
+    <view class="button-group footer" v-if="!editing">
+      <button
+        type="primary"
+        :style="detail.bgColor"
+        :disabled="removing"
+        :loading="saving"
+        @click="navigateToEditAccount(detail)">编辑</button>
+      <button
+        type="delete"
+        :disabled="saving"
+        :loading="removing"
+        @click="deleteCurrentAccount">删除</button>
+    </view>
   </view>
 </template>
 <script>
 import * as _ from 'lodash'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import { precision, formatDate, formatWeek } from '@/utils/index'
 
 export default {
@@ -69,6 +82,7 @@ export default {
     return {
       editing: false,
       saving: false,
+      removing: false,
       balance: 0.00,
       detail: {
         bgColor: 'background-color: #fff',
@@ -86,6 +100,25 @@ export default {
     })
   },
   methods: {
+    navigateToEditAccount(data) {
+      this.setCurrentAccount(data)
+      uni.navigateTo({
+        url: '/pages/asset-management/addAccount',
+      })
+    },
+    deleteCurrentAccount() {
+      this.removing = true
+      wx.cloud.init()
+      wx.cloud.callFunction({
+        name: 'deleteAccount',
+        data: this.detail
+      }).then(() => {
+        this.removing = false
+        uni.navigateBack()
+      }, () => {
+        this.removing = false
+      })
+    },
     editAmount() {
       this.balance = precision(this.detail.balance)
       this.editing = true
@@ -133,7 +166,8 @@ export default {
       });
 
       return _.sortBy(pocketbookList, item => - new Date(item.date).getTime())
-    }
+    },
+    ...mapMutations(['setCurrentAccount'])
   },
   onLoad(e) {
     uni.showLoading({ title: '正在获取数据' })
@@ -156,10 +190,13 @@ export default {
 
 <style lang="scss" scoped>
 .container {
+  position: relative;
   padding: 0 1rem;
+  padding-bottom: 100px;
   height: 100%;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .card {
@@ -214,6 +251,7 @@ export default {
   text-align: center;
 
   button {
+    margin-left: 1px;
     flex: 1;
 
     & + button {
@@ -260,7 +298,17 @@ export default {
         }
       }
     }
+  }
+}
 
+.footer {
+  position: absolute;
+  bottom: 20px;
+  width: calc(100% - 2rem);
+
+  button {
+    font-size: 16px;
+    line-height: 2.2;
   }
 }
 </style>
