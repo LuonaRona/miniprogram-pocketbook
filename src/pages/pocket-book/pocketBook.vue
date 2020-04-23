@@ -134,7 +134,7 @@ export default {
       const { type, date, description, currentIconItem, currentAccountListIndex } = this
       const account_id = this.accountList[currentAccountListIndex]._id
       const [current_year, current_month, current_day] = getYearMonthDayArray(formatDate(date))
-      const amount = parseFloat(precision(amount))
+      const amount = parseFloat(precision(this.amount))
       const data = {
         type,
         account_id,
