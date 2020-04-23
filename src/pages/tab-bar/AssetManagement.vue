@@ -35,7 +35,7 @@
           </view>
           <view class="account-balance">{{ account.balance | amount }}</view>
         </view>
-        <view class="account-item add" @click="navigateToAddAccount">
+        <view class="account-item add" @click="navigateToAddAccount" v-if="accountList.length < 20">
           <image src="/static/add.png" class="account-icon">
           <text class="account-text">添加账户</text>
         </view>
