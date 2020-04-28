@@ -37,7 +37,12 @@
     </view>
     <view class="pocketbook-data" :style="'background-color: ' + currentIconItem.color">
       <text class="name">{{ currentIconItem.name }}</text>
-      <input class="uni-input" type="digit" v-model="amount" @confirm="submit" confirm-type="done">
+      <input class="uni-input"
+        type="digit"
+        v-model="amount"
+        confirm-type="done"
+        @confirm="submit"
+        autofocus>
       <text class="placeholder" v-if="!hasValue">0.00</text>
     </view>
     <view class="grid-icons" v-if="currentIconList.length">
@@ -53,12 +58,23 @@
         </view>
         <text class="text" :class="{'default-color': !isActivedIcon(icon)}">{{ icon.name }}</text>
       </view>
+      <view class="grid-item" @click="toManageIcons()">
+        <view class="image-icon">
+          <image src="/static/setting.png"></image>
+        </view>
+        <text class="text default-color">设置</text>
+      </view>
     </view>
     <view class="confirm">
       <button type="primary"
         class="primary-btn"
         :disabled="primaryBtnDisabled || currentAccountListIndex < 0"
         @click="submit">提交</button>
+      <button type="default"
+        v-if="!currentPocketbook"
+        class="primary-btn"
+        :disabled="primaryBtnDisabled || currentAccountListIndex < 0"
+        @click="submit">定时自动记</button>
       <button type="warn"
         v-if="currentPocketbook"
         class="delete-btn"
@@ -107,6 +123,11 @@ export default {
   },
   methods: {
     ...mapActions(['updateMonths']),
+    toManageIcons() {
+      uni.navigateTo({
+        url: '/pages/pocket-book/bookkeepingSettings',
+      })
+    },
     isActivedTab(type) {
       return this.type === type
     },
@@ -149,7 +170,6 @@ export default {
       const oldData = this.currentPocketbook
       const submitData = _.isUndefined(oldData) ? { type: 'add', data }
                                  : { type: 'update', data, oldData }
-      console.log(submitData)
       wx.cloud.init()
       wx.cloud.callFunction({
         name: 'addPocketbook',
@@ -204,11 +224,13 @@ export default {
     }
   },
   created() {
-    this.getCurrentIconList()
     if (!_.isUndefined(this.currentPocketbook)) {
       this._pocketbook = this.currentPocketbook
       this.setDefualtData()
     }
+  },
+  onShow() {
+    this.getCurrentIconList()
   }
 }
 </script>
@@ -400,6 +422,12 @@ export default {
     &:after {
       border: 1px solid;
       color: inherit;
+    }
+
+    & + .primary-btn {
+      margin-left: 10rpx;
+      color: #666;
+      background: transparent;
     }
   }
 

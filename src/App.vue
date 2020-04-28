@@ -9,9 +9,8 @@
     methods: {
       ...mapMutations([
         'setMyAssets',
-        'setBookkeepingTypeByUser',
+        'setBookkeepingTypeList',
         'setMonths',
-        'setOpenid',
         'updateLoginStatus',
       ]),
       login() {
@@ -19,8 +18,8 @@
         // 用户登录
         return wx.cloud.callFunction({
           name: 'login',
-        }).then(() => {
-          this.updateLoginStatus(true)
+        }).then(({ result }) => {
+          this.updateLoginStatus({ ...result, state: true })
           // 获取账户列表
           wx.cloud.callFunction({
             name: 'getAccountList',
@@ -30,9 +29,9 @@
 
           // 获取图标列表
           wx.cloud.callFunction({
-            name: 'getBookkeepingTypeByUser',
+            name: 'getBookkeepingTypeList',
           }).then(({ result }) => {
-            this.setBookkeepingTypeByUser(result)
+            this.setBookkeepingTypeList(result)
           })
 
           // 获取已记账的月份
@@ -66,7 +65,7 @@
     opacity: 0.6;
   }
 
-  button[disabled][type=primary] {
+  button[disabled][type=primary], button[loading][type=primary], button[type="primary"].button-hover {
     background-color: rgba(255, 103, 129, 0.6);
   }
 
@@ -74,6 +73,7 @@
     color: #F56C6C;
     background: transparent;
   }
+
   button[type="delete"]:after {
     border: 1px solid;
   }

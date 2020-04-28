@@ -1,0 +1,10 @@
+{
+  "triggers": [
+    {
+      "name": "submitTimedBookkeeping",
+      "type": "timer",
+      // 每天 0 时 0 点 0 分 触发
+      "config": "0 0 0 * * * *"
+    }
+  ]
+}

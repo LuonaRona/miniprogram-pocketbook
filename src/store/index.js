@@ -7,8 +7,8 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
 	state: {
-		openid: '',
 		logined: false,
+		userInfo: undefined,
 		myAssets: {
 			newest: true,
 			list: [],
@@ -19,14 +19,11 @@ const store = new Vuex.Store({
 			list: []
 		},
 		currentPocketbook: undefined,
-		bookkeepingTypes: {},
+		bookkeepingTypes: [],
 		months: [],
 		defaultAccount: undefined,
 	},
 	mutations: {
-		setOpenid(state, id) {
-			state.openid = id
-		},
 		setMyAssets(state, myAssets) {
 			state.myAssets = Object.assign(myAssets, { newest: true })
 		},
@@ -49,28 +46,38 @@ const store = new Vuex.Store({
 		setCurrentPocketbook(state, pocketbook) {
 			state.currentPocketbook = pocketbook
 		},
-		setBookkeepingTypeByUser(state, bookkeepingTypes) {
+		setBookkeepingTypeList(state, bookkeepingTypes) {
 			state.bookkeepingTypes = bookkeepingTypes
 		},
 		setMonths(state, months) {
 			state.months = months
 		},
-		updateLoginStatus(state, status) {
-			state.logined = status
+		updateLoginStatus(state, userInfo) {
+			state.logined = false
+
+			if (!_.isNil(userInfo)) {
+				state.logined = true
+				state.userInfo = userInfo
+			}
 		},
+		updateUserBookkeepingTypes(state, types) {
+			state.userInfo = Object.assign(state.userInfo, { bookkeepingTypes: types })
+		}
 	},
 	getters: {
-		getOpenid(state) {
-			return state.openid
-		},
 		getCurrentPocketbook(state) {
 			return state.currentPocketbook
 		},
 		getAccountList(state) {
 			return state.myAssets.list
 		},
-		getBookkeepingTypeByUser(state) {
+		getBookkeepingTypeList(state) {
 			return state.bookkeepingTypes
+		},
+		getBookkeepingTypeByUser(state) {
+			const typeIds = state.userInfo.bookkeepingTypes
+
+			return _.filter(state.bookkeepingTypes, type => _.includes(typeIds, type._id))
 		},
 		getMonths(state) {
 			const months = _.sortBy(state.months, item => {
@@ -86,6 +93,9 @@ const store = new Vuex.Store({
 		},
 		isLogined(state) {
 			return state.logined
+		},
+		getUserInfo(state) {
+			return state.userInfo
 		}
 	},
 	actions: {

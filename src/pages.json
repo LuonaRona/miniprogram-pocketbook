@@ -13,9 +13,21 @@
 			}
 		},
 		{
+			"path": "pages/pocket-book/bookkeepingSettings",
+			"style": {
+				"navigationBarTitleText": "收支类型管理"
+			}
+		},
+		{
 			"path": "pages/tab-bar/ReportCharts",
 			"style": {
 				"navigationBarTitleText": "报表"
+			}
+		},
+		{
+			"path": "pages/pocket-book/timedAutoBookkeeping",
+			"style": {
+				"navigationBarTitleText": "定时自动记账"
 			}
 		},
 		{

@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const cloud = require('wx-server-sdk')
 
 cloud.init({
@@ -5,8 +6,5 @@ cloud.init({
 })
 
 exports.main = (event, context) => {
-  const db = cloud.database()
-  const { _id } = event
-
-  return db.collection('account').where({ _id }).remove()
+  
 }

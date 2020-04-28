@@ -9,7 +9,7 @@ cloud.init({
 const getUsers = async () => {
   const rs = await cloud.database().collection('users').get()
 
-  return rs.data ? _.map(rs.data, '_openid') : null
+  return rs.data
 }
 
 const createUser = async (_openid) => {
@@ -53,7 +53,7 @@ exports.main = async (event, context) => {
   const id = cloud.getWXContext().OPENID
   if (!id) { return '用户ID获取失败' }
   const users = await getUsers()
-  const userExists = _.includes(users, id)
+  const userExists = _.includes(_.map(users, '_openid'), id)
 
   if (!userExists) {
     return await createUser(id).then(() => {
@@ -63,5 +63,5 @@ exports.main = async (event, context) => {
     }, () => '用户创建失败')
   }
 
-  return '用户已存在'
+  return _.find(users, ['_openid', id])
 }
