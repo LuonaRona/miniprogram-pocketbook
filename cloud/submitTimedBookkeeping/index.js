@@ -102,7 +102,7 @@ exports.main = async () => {
   }).get()
   const pendingList = getBookkeepingListByCurrentDate(data)
   const result = await _.map(pendingList, (item) => {
-    return await cloud.callFunction({
+    return cloud.callFunction({
       name: 'addPocketbook',
       data: {
         type: 'add',
