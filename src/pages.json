@@ -39,7 +39,7 @@
 		{
 			"path": "pages/asset-management/assetBreakdown",
 			"style": {
-				"navigationBarTitleText": "我的资产账户"
+				"navigationBarTitleText": "资产账户"
 			}
 		},
 		{

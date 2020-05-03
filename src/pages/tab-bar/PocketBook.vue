@@ -30,7 +30,7 @@
             <text>{{ pocketbook.total | amount }}</text>
           </view>
           <view class="list-item-line" v-for="pocket in pocketbook.list" :key="pocket._id" :class="pocket.type === '收入' ? 'lt' : 'rt'">
-            <view class="icon" :style="'color:' + pocket.color" @click="navigateToEdit(pocket)">
+            <view class="icon" :class="{'automatic': pocket.automatic }" :style="'color:' + pocket.color" @click="navigateToEdit(pocket)">
               <image :src="pocket.path"></image>
             </view>
             <view class="pocket-book-item">
@@ -152,11 +152,11 @@ export default {
   text-align: center;
 
   .month-picker {
-    margin-top: 20rpx;
+    margin-top: 10px;
     padding: 0 1rem;
     border-radius: 1rem;
     border: 1px solid #f1f2f7;
-    font-size: 24rpx;
+    font-size: 12px;
     line-height: 1.8;
     display: inline-block;
   }
@@ -178,21 +178,21 @@ export default {
 }
 .header {
   position: relative;
-  padding: 30rpx 0;
+  padding: 15px 0;
   display: flex;
 
   &-item {
-    padding: 30rpx 20rpx;
+    padding: 15px 10px;
     text-align: center;
     flex: 1;
 
     .label {
       color: #909399;
-      font-size: 28rpx;
+      font-size: 14px;
     }
 
     .amount {
-      font-size: 48rpx;
+      font-size: 24px;
     }
   }
   
@@ -201,8 +201,8 @@ export default {
     left: 50%;
     bottom: 0;
     transform: translate(-50%, 50%);
-    width: 160rpx;
-    height: 160rpx;
+    width: 80px;
+    height: 80px;
     text-align: center;
     color: #FF6781;
     border: 1px solid;
@@ -212,33 +212,33 @@ export default {
     cursor: pointer;
 
     .btn-icon {
-      margin-top: 26rpx;
-      width: 70rpx;
-      height: 65rpx;
+      margin-top: 13px;
+      width: 35px;
+      height: 32.5px;
       display: inline-block;
     }
 
     .btn-text {
-      font-size: 28rpx;
+      font-size: 14px;
       display: block;
     }
   }
 }
 .content {
-  height: calc(100% - 298rpx);
+  height: calc(100% - 149px);
   overflow: auto;
 }
 
 .list {
-  padding-top: 100rpx;
-  margin-bottom: 70rpx;
+  padding-top: 50px;
+  margin-bottom: 35px;
   box-sizing: border-box;
 
   &-item {
-    padding-top: 30rpx;
+    padding-top: 15px;
 
     &-line {
-      margin-top: 40rpx;
+      margin-top: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -280,8 +280,8 @@ export default {
           left: 50%;
           top: 50%;
           transform: translate(-45%, -50%);
-          width: 16rpx;
-          height: 16rpx;
+          width: 8px;
+          height: 8px;
           border-radius: 100%;
           background-color: #ccc;
           display: block;
@@ -290,7 +290,7 @@ export default {
         & > text {
           padding: 0 1em;
           color: #909399;
-          font-size: 28rpx;
+          font-size: 14px;
           flex: 1;
 
           &:first-of-type {
@@ -304,8 +304,9 @@ export default {
       }
 
       .icon {
-        width: 70rpx;
-        height: 70rpx;
+        position: relative;
+        width: 35px;
+        height: 35px;
         border-radius: 100%;
         border: 1px solid;
         background-color: #fff;
@@ -319,19 +320,31 @@ export default {
         }
       }
 
+      .automatic {
+        &:after {
+          content: "Auto";
+          position: absolute;
+          top: 0;
+          left: 50%;
+          font-size: 12px;
+          line-height: 1;
+          transform: translate(-50%, -100%);
+        }
+      }
+
       .pocket-book-item {
-        width: calc(50% - 35rpx);
+        width: calc(50% - 17.5px);
 
         .sub-text {
-          font-size: 24rpx;
+          font-size: 12px;
           color: #909399;
           display: block;
           text-overflow: ellipsis;
         }
 
         & > text {
-          font-size: 32rpx;
-          line-height: 32rpx;
+          font-size: 16px;
+          line-height: 16px;
         }
       }
     }
@@ -344,7 +357,7 @@ export default {
   transform: translate(-50%, -50%);
   margin: 0 auto;
   color: #666;
-  font-size: 32rpx;
+  font-size: 16px;
   font-weight: 300;
   text-align: center;
   display: block;

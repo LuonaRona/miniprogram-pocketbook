@@ -153,13 +153,13 @@ export default {
 
 .pocketbook-type {
   position: relative;
-  padding: 0 50rpx;
+  padding: 0 25px;
   box-sizing: border-box;
   display: flex;
   
   .income, .outlay {
-    padding: 0 10rpx;
-    font-size: 28rpx;
+    padding: 0 5px;
+    font-size: 14px;
     font-weight: bold;
     line-height: 2;
     text-align: center;
@@ -173,10 +173,10 @@ export default {
 
   .h-line {
     position: absolute;
-    width: calc(50% - 50rpx);
-    height: 4rpx;
+    width: calc(50% - 25px);
+    height: 2px;
     bottom: 0;
-    border-radius: 4rpx;
+    border-radius: 2px;
     background-color: #FF6781;
     transform: translateX(0);
     transition: .3s all ease;
@@ -195,9 +195,9 @@ export default {
   flex-wrap: wrap;
 
   .grid-item {
-    margin: 10rpx 0;
+    margin: 5px 0;
     width: 20%;
-    font-size: 28rpx;
+    font-size: 14px;
     text-align: center;
     cursor: pointer;
 
@@ -209,17 +209,17 @@ export default {
 
     .image-icon {
       position: relative;
-      margin: 10rpx auto;
-      width: 68rpx;
-      height: 68rpx;
+      margin: 5px auto;
+      width: 34px;
+      height: 34px;
       color: inherit;
       border-radius: 100%;
       border: 1px solid transparent;
 
       & > image {
-        margin-top: 4rpx;
-        width: 60rpx;
-        height: 60rpx;
+        margin-top: 2px;
+        width: 30px;
+        height: 30px;
       }
 
       .badge-icon {

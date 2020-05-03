@@ -94,11 +94,6 @@ export default {
     }
   },
   filters: { formatDate, formatWeek },
-  computed: {
-    ...mapGetters({
-      iconList: 'getBookkeepingTypeByUser',
-    })
-  },
   methods: {
     navigateToEditAccount(data) {
       this.setCurrentAccount(data)
@@ -170,6 +165,7 @@ export default {
     ...mapMutations(['setCurrentAccount'])
   },
   onLoad(e) {
+    console.log(e)
     uni.showLoading({ title: '正在获取数据' })
     const { id, name } = e;
     wx.cloud.init()
@@ -200,25 +196,25 @@ export default {
 }
 
 .card {
-  margin: 20rpx 0;
+  margin: 10px 0;
   padding: .3rem 2rem;
   color: #fff;
-  border-radius: 16rpx;
+  border-radius: 8px;
 
   &-line {
-    border-bottom: 1rpx solid #fff;
+    border-bottom: 1px solid #fff;
     display: flex;
 
     .amount {
-      font-size: 36rpx;
+      font-size: 18px;
 
       &.large {
-        font-size: 52rpx;
+        font-size: 26px;
       }
     }
 
     .label {
-      font-size: 24rpx;
+      font-size: 12px;
     }
 
     &:last-of-type {
@@ -227,14 +223,14 @@ export default {
   }
 
   &-item {
-    padding: 20rpx 10rpx;
+    padding: 10px 5px;
     text-align: center;
     flex: 1;
   }
 }
 
 .uni-input {
-  font-size: 52rpx;
+  font-size: 26px;
   height: 1.42em;
 
   &::placeholder {
@@ -243,7 +239,7 @@ export default {
 }
 
 .button-group {
-  margin-top: 20rpx;
+  margin-top: 10px;
   height: 30px;
   display: flex;
   justify-content: space-around;
@@ -255,7 +251,7 @@ export default {
     flex: 1;
 
     & + button {
-      margin-left: 20rpx;
+      margin-left: 10px;
     }
   }
 }
@@ -266,10 +262,10 @@ export default {
 
   &-item {
     &-date {
-      margin-top: 20rpx;
+      margin-top: 10px;
       display: flex;
       justify-content: space-between;
-      font-size: 28rpx;
+      font-size: 14px;
       color: #909390;
 
       .date {
@@ -280,8 +276,8 @@ export default {
     }
 
     &-pocketbook {
-      margin: 36rpx 0;
-      font-size: 32rpx;
+      margin: 18px 0;
+      font-size: 16px;
       display: flex;
       justify-content: space-between;
 
@@ -290,9 +286,9 @@ export default {
         align-items: center;
 
         .icon-image {
-          margin-right: 8rpx;
-          width: 30rpx;
-          height: 30rpx;
+          margin-right: 4px;
+          width: 15px;
+          height: 15px;
           border: 1px solid;
           border-radius: 100%;
         }

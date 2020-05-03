@@ -417,8 +417,8 @@ export default {
 }
 
 .filtor {
-  height: 90rpx;
-  font-size: 24rpx;
+  height: 45px;
+  font-size: 12px;
   border-bottom: 1px solid #f1f2f7;
   display: flex;
   justify-content: space-between;
@@ -431,8 +431,8 @@ export default {
   white-space: nowrap;
 
   &-icon {
-    width: 50rpx;
-    height: 50rpx;
+    width: 25px;
+    height: 25px;
   }
 
   .date-icon, .date-text {
@@ -444,13 +444,13 @@ export default {
   flex: 1 1 auto;
   display: inline-flex;
   align-items: center;
-  line-height: 60rpx;
+  line-height: 30px;
   overflow-x: auto;
 
   &-item {
     text-align: center;
     flex: 1 1 auto;
-    min-width: 100rpx;
+    min-width: 50px;
     cursor: pointer;
 
     &.actived {
@@ -460,7 +460,7 @@ export default {
 }
 
 .total-filter {
-  height: 150rpx;
+  height: 75px;
   border-bottom: 1px solid #f1f2f7;
   display: flex;
   justify-content: center;
@@ -480,34 +480,34 @@ export default {
     }
 
     .amount {
-      font-size: 40rpx;
+      font-size: 20px;
     }
 
     .label {
       color: #909399;
-      font-size: 26rpx;
+      font-size: 13px;
     }
   }
 }
 
 .ucharts {
-  height: calc(100% - 600rpx);
+  height: calc(100% - 300px);
   overflow: hidden;
   border-bottom: 1px solid #f1f2f7;
 
   .btn-group {
-    margin: 10rpx 0;
+    margin: 5px 0;
     text-align: center;
 
     .button {
       position: relative;
-      width: 130rpx;
-      height: 50rpx;
-      line-height: 50rpx;
+      width: 65px;
+      height: 25px;
+      line-height: 25px;
       text-align: center;
-      font-size: 28rpx;
+      font-size: 14px;
       color: #909399;
-      border: 1rpx solid;
+      border: 1px solid;
       display: inline-block;
       z-index: 1;
       box-sizing: border-box;
@@ -515,11 +515,11 @@ export default {
 
       &:first-of-type {
         margin-right: -1px;
-        border-radius: 32rpx 0 0 32rpx;
+        border-radius: 16px 0 0 16px;
       }
 
       &:last-of-type {
-        border-radius: 0 32rpx 32rpx 0;
+        border-radius: 0 16px 16px 0;
       }
 
       &.actived {
@@ -531,7 +531,7 @@ export default {
 
   &-content {
     position: relative;
-    height: calc(100% - 60rpx);
+    height: calc(100% - 30px);
 
     .canvas {
       width: 100%;
@@ -545,7 +545,7 @@ export default {
 }
 
 .list {
-  height: 360rpx;
+  height: 180px;
   background-color: #f1f2f7;
   overflow: auto;
 
@@ -554,7 +554,7 @@ export default {
     border-bottom: 1px dashed #f1f2f7;
     display: flex;
     justify-content: space-between;
-    font-size: 30rpx;
+    font-size: 15px;
     background-color: #fff;
 
     .title, .percentage, .sub-total {
@@ -567,9 +567,9 @@ export default {
 
       &-icon {
         margin-right: .3rem;
-        width: 40rpx;
-        height: 40rpx;
-        border: 2rpx solid;
+        width: 20px;
+        height: 20px;
+        border: 1px solid;
         border-radius: 100%;
       }
     }
@@ -585,7 +585,7 @@ export default {
 }
 
 .line-list {
-  height: 360rpx;
+  height: 180px;
 
   &-content {
     height: calc(100% - 25px);
@@ -593,8 +593,8 @@ export default {
   }
 
   &-item {
-    padding: 16rpx 16rpx;
-    font-size: 24rpx;
+    padding: 8px 8px;
+    font-size: 12px;
 
     display: flex;
     justify-content: center;
@@ -627,7 +627,7 @@ export default {
   transform: translate(-50%, -50%);
   margin: 0 auto;
   color: #666;
-  font-size: 32rpx;
+  font-size: 16px;
   font-weight: 300;
   text-align: center;
   display: block;

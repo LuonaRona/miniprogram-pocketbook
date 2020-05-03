@@ -51,10 +51,10 @@ const activateUser = async (id) => {
 
 exports.main = async (event, context) => {
   const id = cloud.getWXContext().OPENID
+  console.log(id)
   if (!id) { return '用户ID获取失败' }
   const users = await getUsers()
   const userExists = _.includes(_.map(users, '_openid'), id)
-
   if (!userExists) {
     return await createUser(id).then(() => {
       return generateUserAccount(id).then(() => {

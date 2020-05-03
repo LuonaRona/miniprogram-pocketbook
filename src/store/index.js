@@ -19,6 +19,7 @@ const store = new Vuex.Store({
 			list: []
 		},
 		currentPocketbook: undefined,
+		currentTimedAutoPocketbook: undefined,
 		bookkeepingTypes: [],
 		months: [],
 		defaultAccount: undefined,
@@ -46,6 +47,9 @@ const store = new Vuex.Store({
 		setCurrentPocketbook(state, pocketbook) {
 			state.currentPocketbook = pocketbook
 		},
+		setCurrentTimedAutoPocketbook(state, pocketbook) {
+			state.currentTimedAutoPocketbook = pocketbook
+		},
 		setBookkeepingTypeList(state, bookkeepingTypes) {
 			state.bookkeepingTypes = bookkeepingTypes
 		},
@@ -68,6 +72,9 @@ const store = new Vuex.Store({
 		getCurrentPocketbook(state) {
 			return state.currentPocketbook
 		},
+		getCurrentTimedAutoPocketbook(state) {
+			return state.currentTimedAutoPocketbook
+		},
 		getAccountList(state) {
 			return state.myAssets.list
 		},
@@ -84,9 +91,6 @@ const store = new Vuex.Store({
 				return - new Date(item.year, item.month + 1, 1).getTime()
 			})
 			return formatHeadMonth(_.map(months, date => formatMonth(date)))
-		},
-		getIconByName(state, name) {
-			return _.find(state.bookkeepingTypes, { name })
 		},
 		getCurrentAccount(state) {
 			return state.currentAccount

@@ -1,4 +1,11 @@
-const _ = require('lodash')
+import * as _ from 'lodash'
+import {
+  duplicateModeMap,
+  daySuboption,
+  weekSuboption,
+  monthSuboption,
+  yearSuboption,
+} from '../constant/duplicateModeMultiOption';
 
 const precision = (num, precision = 2) => {
   if (typeof num !== 'number') {
@@ -23,6 +30,17 @@ const formatDate = (_date) => {
   const dd = `0${day}`.substr(-2)
 
   return isThisYear ? `${mm}.${dd}` : `${year}.${mm}.${dd}`
+}
+
+const formatDateAsText = (_date) => {
+  if (!_date) { return '' }
+  const date = new Date(_date)
+
+  const yyyy = date.getFullYear()
+  const mm = `0${date.getMonth() + 1}`.substr(-2)
+  const dd = `0${date.getDate()}`.substr(-2)
+
+  return `${yyyy}年${mm}月${dd}日`
 }
 
 const formatWeek = (weekday) => {
@@ -110,9 +128,33 @@ const formatDay = (day, month, year) => {
   return `${dd}日`
 }
 
+const getDuplicateModeText = ([cycleIndex, suboptionIndex]) => {
+  if (_.isNil(cycleIndex) || _.isNil(suboptionIndex)) return ''
+  const optionArray = [daySuboption, weekSuboption, monthSuboption, yearSuboption]
+  
+  return duplicateModeMap[cycleIndex].label + optionArray[cycleIndex][suboptionIndex].label
+}
+
+const getDuplicateModeValue = ([cycleIndex, suboptionIndex]) => {
+  if (_.isNil(cycleIndex) || _.isNil(suboptionIndex)) return ''
+  const optionArray = [daySuboption, weekSuboption, monthSuboption, yearSuboption]
+  
+  return [duplicateModeMap[cycleIndex].value, optionArray[cycleIndex][suboptionIndex].value]
+}
+
+const getIconStyleByTypename = (list, typename) => {
+  return _.find(list, ['type_name', typename])
+}
+
+const getTomorrowTime = () => {
+  const date = new Date()
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1).getTime()
+}
+
 export {
   precision,
   formatDate,
+  formatDateAsText,
   formatWeek,
   formatMonth,
   formatHeadMonth,
@@ -121,4 +163,8 @@ export {
   getEndDate,
   getYearMonthDayArray,
   getYearMonthArray,
+  getDuplicateModeText,
+  getDuplicateModeValue,
+  getIconStyleByTypename,
+  getTomorrowTime,
 }

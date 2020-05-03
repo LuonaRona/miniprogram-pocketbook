@@ -10,7 +10,7 @@ function isIncome(type) {
 }
 
 exports.main = (event, context) => {
-  const _openid = cloud.getWXContext().OPENID
+  const _openid = event._openid || cloud.getWXContext().OPENID
   const db = cloud.database()
 
   // 新增

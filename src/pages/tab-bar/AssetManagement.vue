@@ -23,7 +23,7 @@
       <view class="account-items">
         <view class="account-item"
           v-for="account in accountList"
-          :key="account.name"
+          :key="account._id"
           :style="account.bgColor"
           @click="navigateToDetail(account._id, account.name)">
           <view class="account-name">
@@ -97,22 +97,22 @@ export default {
   height: 100%;
 
   .top-fixed {
-    height: 170rpx;
+    height: 85px;
   }
 
   .account-list {
     position: relative;
     padding: 1rem;
     padding-top: 0;
-    height: calc(100% - 170rpx);
+    height: calc(100% - 85px);
     overflow: hidden;
     box-sizing: border-box;
     background-color: #F2F6FC;
 
     .line-count {
-      font-size: 28rpx;
-      line-height: 80rpx;
-      height: 80rpx;
+      font-size: 14px;
+      line-height: 40px;
+      height: 40px;
       display: block;
     }
   }
@@ -132,11 +132,11 @@ export default {
     }
 
     .amount {
-      font-size: 40rpx;
+      font-size: 20px;
     }
 
     .label {
-      font-size: 28rpx;
+      font-size: 14px;
       color: #909399;
     }
   }
@@ -144,28 +144,28 @@ export default {
   .asset-situation {
     .label {
       margin-right: .7rem;
-      font-size: 24rpx;
+      font-size: 12px;
       color: #909399;
       vertical-align: middle;
     }
 
     .amount {
-      font-size: 34rpx;
+      font-size: 17px;
       vertical-align: middle;
     }
   }
 }
 
 .account-items {
-  height: calc(100% - 80rpx);
+  height: calc(100% - 40px);
   overflow: auto;
 }
 
 .account-item {
-  margin-bottom: 40rpx;
+  margin-bottom: 20px;
   padding: 1rem;
   color: #fff;
-  border-radius: 20rpx 20rpx 0 0;
+  border-radius: 10px 10px 0 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -196,7 +196,7 @@ export default {
   }
 
   .account-icon {
-    margin-right: 10rpx;
+    margin-right: 5px;
     min-width: 1.5rem;
     width: 1.5rem;
     height: 1.5rem;

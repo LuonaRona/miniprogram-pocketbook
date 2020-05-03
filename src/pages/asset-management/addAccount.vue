@@ -313,7 +313,7 @@ export default {
 .account-item {
   padding: 1rem;
   color: #fff;
-  border-radius: 20rpx 20rpx 0 0;
+  border-radius: 10px 10px 0 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -344,7 +344,7 @@ export default {
   }
 
   .account-icon {
-    margin-right: 10rpx;
+    margin-right: 5px;
     min-width: 1.5rem;
     width: 1.5rem;
     height: 1.5rem;

@@ -74,7 +74,7 @@
         v-if="!currentPocketbook"
         class="primary-btn"
         :disabled="primaryBtnDisabled || currentAccountListIndex < 0"
-        @click="submit">定时自动记</button>
+        @click="toTimedAutoBookkeeping()">开启定时自动记</button>
       <button type="warn"
         v-if="currentPocketbook"
         class="delete-btn"
@@ -86,7 +86,7 @@
 
 <script>
 import * as _ from 'lodash'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import { precision, formatDate, getStartDate, getEndDate, getYearMonthDayArray } from '@/utils/index'
 
 export default {
@@ -99,7 +99,7 @@ export default {
       startDate: getStartDate(),
       endDate: getEndDate(),
       description: '',
-      amount: undefined,
+      amount: null,
       currentIconList: [],
       currentIconItem: {
         name: '水电煤',
@@ -113,7 +113,7 @@ export default {
   filters: { formatDate },
   computed: {
     hasValue() {
-      return !_.isUndefined(this.amount) ? this.amount.toString().length > 0 : false
+      return !_.isNil(this.amount) ? this.amount.toString().length > 0 : false
     },
     ...mapGetters({
       accountList: 'getAccountList',
@@ -123,9 +123,20 @@ export default {
   },
   methods: {
     ...mapActions(['updateMonths']),
+    ...mapMutations(['setCurrentTimedAutoPocketbook']),
     toManageIcons() {
       uni.navigateTo({
         url: '/pages/pocket-book/bookkeepingSettings',
+      })
+    },
+    toTimedAutoBookkeeping() {
+      this.setCurrentTimedAutoPocketbook({
+        account_name: this.accountList[this.currentAccountListIndex].name,
+        ...this.currentIconItem,
+        ...this.getSubmitData()
+      })
+      uni.navigateTo({
+        url: '/pages/pocket-book/timedAutoBookkeeping',
       })
     },
     isActivedTab(type) {
@@ -152,21 +163,8 @@ export default {
 
       this.primaryBtnDisabled = true
       uni.showLoading({ title: '正在提交数据...' })
-      const { type, date, description, currentIconItem, currentAccountListIndex } = this
-      const account_id = this.accountList[currentAccountListIndex]._id
-      const [current_year, current_month, current_day] = getYearMonthDayArray(formatDate(date))
-      const amount = parseFloat(precision(this.amount))
-      const data = {
-        type,
-        account_id,
-        amount: _.isNumber(amount) ? amount : 0,
-        current_year,
-        current_month,
-        current_day,
-        description,
-        timestamp: new Date(`${current_year}/${current_month}/${current_day}`).getTime(),
-        type_name: currentIconItem.name,
-      };
+      
+      const data = this.getSubmitData();
       const oldData = this.currentPocketbook
       const submitData = _.isUndefined(oldData) ? { type: 'add', data }
                                  : { type: 'update', data, oldData }
@@ -186,11 +184,10 @@ export default {
     getCurrentIconList() {
       const iconGroupedByType = _.groupBy(this.iconList, 'type')
       const list = iconGroupedByType[this.type]
-
-      if (!_.isEmpty(list)) {
-        this.currentIconList = list
+      if (!_.find(list, this.currentIconItem)) {
         this.currentIconItem = _.head(list)
       }
+      this.currentIconList = list
     },
     setDefualtData() {
       const {
@@ -221,15 +218,31 @@ export default {
       }, () => {
         uni.navigateBack()
       })
+    },
+    getSubmitData() {
+      const { type, date, description, currentIconItem, currentAccountListIndex } = this
+      const account_id = this.accountList[currentAccountListIndex]._id
+      const [current_year, current_month, current_day] = getYearMonthDayArray(formatDate(date))
+      const amount = parseFloat(precision(this.amount))
+
+      return {
+        type,
+        account_id,
+        amount: _.isNumber(amount) ? amount : 0,
+        current_year,
+        current_month,
+        current_day,
+        description,
+        timestamp: new Date(`${current_year}/${current_month}/${current_day}`).getTime(),
+        type_name: currentIconItem.name,
+      }
     }
   },
   created() {
-    if (!_.isUndefined(this.currentPocketbook)) {
+    if (!_.isNil(this.currentPocketbook)) {
       this._pocketbook = this.currentPocketbook
       this.setDefualtData()
     }
-  },
-  onShow() {
     this.getCurrentIconList()
   }
 }
@@ -238,14 +251,14 @@ export default {
 <style lang="scss" scoped>
 .container {
   position: relative;
-  padding-bottom: 100rpx;
+  padding-bottom: 50px;
   height: 100%;
   box-sizing: border-box;
 }
 
 .pocketbook-option {
-  padding: 10rpx;
-  font-size: 24rpx;
+  padding: 5px;
+  font-size: 12px;
   display: flex;
 
   .icon, .picker, .uni-input {
@@ -254,7 +267,7 @@ export default {
   }
 
   .uni-input {
-    font-size: 28rpx;
+    font-size: 14px;
 
     &.error {
       color: #F56C6C;
@@ -262,8 +275,8 @@ export default {
   }
 
   .icon {
-    width: 46rpx;
-    height: 46rpx;
+    width: 23px;
+    height: 23px;
   }
 
   .picker {
@@ -286,7 +299,7 @@ export default {
   }
 
   .date, .account {
-    margin-right: 10rpx;
+    margin-right: 5px;
     white-space: nowrap;
   }
 
@@ -294,19 +307,19 @@ export default {
     white-space: nowrap;
 
     .uni-input {
-      width: 260rpx;
+      width: 130px;
     }
   }
 }
 .pocketbook-type {
   position: relative;
-  padding: 0 50rpx;
+  padding: 0 25px;
   box-sizing: border-box;
   display: flex;
   
   .income, .outlay {
-    padding: 0 10rpx;
-    font-size: 28rpx;
+    padding: 0 5px;
+    font-size: 14px;
     font-weight: bold;
     line-height: 2;
     text-align: center;
@@ -320,10 +333,10 @@ export default {
 
   .h-line {
     position: absolute;
-    width: calc(50% - 50rpx);
-    height: 4rpx;
+    width: calc(50% - 25px);
+    height: 2px;
     bottom: 0;
-    border-radius: 4rpx;
+    border-radius: 2px;
     background-color: #FF6781;
     transform: translateX(0);
     transition: .3s all ease;
@@ -333,7 +346,7 @@ export default {
 .pocketbook-data {
   position: relative;
   padding: 0 1rem;
-  height: 130rpx;
+  height: 65px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -342,7 +355,7 @@ export default {
 
   .name {
     color: #fff;
-    font-size: 36rpx;
+    font-size: 18px;
     white-space: nowrap;
   }
 
@@ -350,8 +363,8 @@ export default {
     position: relative;
     z-index: 2;
     color: #fff;
-    font-size: 52rpx;
-    line-height: 52rpx;
+    font-size: 26px;
+    line-height: 26px;
     height: auto;
     text-align: right;
   }
@@ -360,7 +373,7 @@ export default {
     position: absolute;
     right: 1rem;
     bottom: 50%;
-    font-size: 52rpx;
+    font-size: 26px;
     color: #ccc;
     opacity: .5;
     transform: translateY(50%);
@@ -372,9 +385,9 @@ export default {
   flex-wrap: wrap;
 
   .grid-item {
-    margin: 10rpx 0;
+    margin: 5px 0;
     width: 20%;
-    font-size: 28rpx;
+    font-size: 14px;
     text-align: center;
     cursor: pointer;
 
@@ -385,17 +398,17 @@ export default {
     }
 
     .image-icon {
-      margin: 10rpx auto;
-      width: 68rpx;
-      height: 68rpx;
+      margin: 5px auto;
+      width: 34px;
+      height: 34px;
       color: inherit;
       border-radius: 100%;
       border: 1px solid transparent;
 
       & > image {
-        margin-top: 4rpx;
-        width: 60rpx;
-        height: 60rpx;
+        margin-top: 2px;
+        width: 30px;
+        height: 30px;
       }
     }
 
@@ -408,8 +421,8 @@ export default {
 .confirm {
   position: absolute;
   bottom: 0;
-  padding: 20rpx;
-  padding-bottom: 10rpx;
+  padding: 10px;
+  padding-bottom: 5px;
   width: 100%;
   display: flex;
   justify-content: space-around;
@@ -425,14 +438,14 @@ export default {
     }
 
     & + .primary-btn {
-      margin-left: 10rpx;
+      margin-left: 5px;
       color: #666;
       background: transparent;
     }
   }
 
   .delete-btn {
-    margin-left: 10rpx;
+    margin-left: 5px;
     color: $uni-color-error;
     background: transparent;
   }
