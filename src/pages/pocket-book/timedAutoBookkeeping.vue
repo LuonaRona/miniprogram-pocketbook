@@ -160,10 +160,9 @@ export default {
       const { account_id, amount, type, type_name, description } = this.currentPocketbook
             
       if (!isRepeat) {
+        const timestamp = new Date().getTime()
         const [current_year, current_month, current_day] =
               getYearMonthDayArray(formatDate(this.date))
-        const timestamp =
-              new Date(current_year, current_month, current_day, 0, 0, 0).getTime()
 
         return { current_year, current_month, current_day, timestamp,
                  account_id, amount, type, type_name, description }
@@ -187,7 +186,7 @@ export default {
         done,
         startDate: new Date(startDate).getTime(),
         endDate: endDate ? new Date(endDate).getTime() : 0,
-      } : { isRepeat, pocketbook, disable, done }
+      } : { isRepeat, pocketbook, disable, done, startDate: new Date().getTime(), endDate: 0 }
 
       wx.cloud.init()
       wx.cloud.callFunction({

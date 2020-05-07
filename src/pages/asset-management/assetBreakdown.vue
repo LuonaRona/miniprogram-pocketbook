@@ -93,6 +93,11 @@ export default {
       pocketbookList: [],
     }
   },
+  computed: {
+    ...mapGetters({
+      iconList: 'getBookkeepingTypeList',
+    })
+  },
   filters: { formatDate, formatWeek },
   methods: {
     navigateToEditAccount(data) {
@@ -144,6 +149,7 @@ export default {
       })
     },
     getIconData(item) {
+      console.log(item)
       return _.find(this.iconList, {
         name: item.type_name
       })
@@ -159,13 +165,13 @@ export default {
           list: _.map(list, item => Object.assign({ ...item, ...this.getIconData(item) }))
         }
       });
+      console.log(pocketbookList)
 
       return _.sortBy(pocketbookList, item => - new Date(item.date).getTime())
     },
     ...mapMutations(['setCurrentAccount'])
   },
   onLoad(e) {
-    console.log(e)
     uni.showLoading({ title: '正在获取数据' })
     const { id, name } = e;
     wx.cloud.init()
@@ -287,8 +293,8 @@ export default {
 
         .icon-image {
           margin-right: 4px;
-          width: 15px;
-          height: 15px;
+          width: 18px;
+          height: 18px;
           border: 1px solid;
           border-radius: 100%;
         }

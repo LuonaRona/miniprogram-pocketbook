@@ -111,9 +111,10 @@ export default {
             total: _.sumBy(value, item => {
               return item.amount * (item.type === '收入' ? 1 : -1)
             }),
-            list: value
+            list: value.sort((a , b) => b.timestamp - a.timestamp)
           })
         })
+        
         this.pocketbookList = _.sortBy(pocketbookList, item => - new Date(item.date).getTime())
         this.currentYear = year
         this.currentMonth = month

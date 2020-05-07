@@ -9,9 +9,8 @@ const getBookkeepingListByCurrentDate = (list) => {
   const groupByRepeat = _.groupBy(list, 'isRepeat')
   const noRepeatBookkeepingList = getBookkeepingListByNoRepeat(groupByRepeat['false'] || [])
   const repeatBookkeepingList = getBookkeepingListByRepeat(groupByRepeat['true'] || [])
-  console.log(noRepeatBookkeepingList, repeatBookkeepingList)
 
-  return [...noRepeatPendingList, ...repeatBookkeepingList]
+  return [...noRepeatBookkeepingList, ...repeatBookkeepingList]
 }
 
 const getBookkeepingListByNoRepeat = (list) => {
@@ -65,7 +64,7 @@ const getBookkeepingListByRepeat = (list) => {
         isEveryWeekCurrentDate ||
         isEveryMonthCurrentDate ||
         isEveryYearCurrentDate) {
-      submitList.push(formatPocketbook(_openid, item.pocketbook))
+          submitList.push(formatPocketbook(_openid, item.pocketbook))
     }
   })
 
@@ -76,8 +75,8 @@ const formatPocketbook = (_openid, pocketbook) => {
   const today = new Date()
   const current_year = today.getFullYear()
   const current_month = today.getMonth() + 1
-  const current_day = today.getDay()
-  const timestamp = new Date(current_year, current_month - 1, current_day, 0, 0, 0).getTime()
+  const current_day = today.getDate()
+  const timestamp = new Date().getTime()
 
   return {
     _openid,
@@ -101,16 +100,29 @@ exports.main = async () => {
     done: false,
   }).get()
   const pendingList = getBookkeepingListByCurrentDate(data)
-  const result = await _.map(pendingList, (item) => {
-    return cloud.callFunction({
-      name: 'addPocketbook',
-      data: {
-        type: 'add',
-        _openid: item._openid,
-        data: item,
-      },
-    })
-  })
+  const length = pendingList.length
+
+  let result = []
+  for (let i = 0; i < length; i += 1) {
+    const pocket = pendingList[i]
+    const amount = pocket.amount
+    const accountId = pocket.account_id
+    const isIncome = _.isEqual(pocket.type, '收入')
+    const [income, outlay] = isIncome ? [amount, 0] : [0, amount]
+
+    result = await db.collection('pocket_book_list')
+      .add({ data: { ...pocket } })
+      .then(async () => {
+        return await db.collection('account')
+          .where({ _id: accountId }).update({
+            data: {
+              inTotal: cmd.inc(income),
+              outTotal: cmd.inc(outlay),
+              balance: cmd.inc(income - outlay),
+            }
+        })
+      })
+  }
 
   return { pendingList, result }
 }

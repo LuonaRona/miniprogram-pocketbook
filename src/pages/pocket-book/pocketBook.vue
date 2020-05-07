@@ -192,14 +192,16 @@ export default {
     setDefualtData() {
       const {
         type,
-        timestamp,
+        current_year,
+        current_month,
+        current_day,
         account_id,
         description,
         amount,
         name, color, path
       } = this.currentPocketbook
       this.onTypeChange(type)
-      this.date = new Date(timestamp)
+      this.date = new Date(current_year, current_month - 1, current_day, 0, 0, 0)
       this.currentAccountListIndex = _.findIndex(this.accountList, account => _.isEqual(account._id, account_id))
       this.description = description
       this.amount = amount
@@ -233,7 +235,7 @@ export default {
         current_month,
         current_day,
         description,
-        timestamp: new Date(`${current_year}/${current_month}/${current_day}`).getTime(),
+        timestamp: new Date().getTime(),
         type_name: currentIconItem.name,
       }
     }
