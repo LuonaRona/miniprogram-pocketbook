@@ -8,23 +8,32 @@
     mpType: 'app',
     methods: {
       ...mapMutations([
-        'setMyAssets',
+        'setAccounts',
         'setBookkeepingTypeList',
+        'setPocketbookList',
+        'setPendingPocketbookList',
         'setMonths',
         'updateLoginStatus',
       ]),
       login() {
+        // uni.showLoading({ title: '正在登录' })
         wx.cloud.init()
         // 用户登录
         return wx.cloud.callFunction({
           name: 'login',
         }).then(({ result }) => {
+          uni.showLoading({ title: '正在获取数据' })
           this.updateLoginStatus({ ...result, state: true })
+
+          const now = new Date()
+          const year = now.getFullYear()
+          const month = now.getMonth() + 1
+
           // 获取账户列表
           wx.cloud.callFunction({
             name: 'getAccountList',
           }).then(({ result }) => {
-            this.setMyAssets(result)
+            this.setAccounts(result)
           })
 
           // 获取图标列表
@@ -34,11 +43,20 @@
             this.setBookkeepingTypeList(result)
           })
 
-          // 获取已记账的月份
+          // 获取自动定时记账数据
           wx.cloud.callFunction({
-            name: 'getMonthOfAccounting',
+            name: 'getTimedAutoBookkeeping'
           }).then(({ result }) => {
-            this.setMonths(result)
+            this.setPendingPocketbookList(result.data)
+          })
+
+          // 获取所有记账数据
+          wx.cloud.callFunction({
+            name: 'getAllPocketbook',
+            data: { year, month },
+          }).then(({ result }) => {
+            uni.hideLoading()
+            this.setPocketbookList(result.list)
           })
         })
       }

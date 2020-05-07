@@ -20,12 +20,14 @@ exports.main = (event, context) => {
 
     return db.collection('pocket_book_list')
             .add({ data: { ...event.data, _openid } })
-            .then(() => cloud.callFunction({
-              name: 'updateBalanceByAccount',
-              data: isIncome(event.data.type) ?
-                    { accountId, income: amount } :
-                    { accountId, outlay: amount }
-            }))
+            .then(({ _id }) => {
+              return cloud.callFunction({
+                name: 'updateBalanceByAccount',
+                data: isIncome(event.data.type) ?
+                      { accountId, income: amount } :
+                      { accountId, outlay: amount }
+              }).then(() => _id)
+            })
   } else {
     // 编辑
     const { oldData, data } = event

@@ -86,7 +86,7 @@
 
 <script>
 import * as _ from 'lodash'
-import { mapGetters, mapActions, mapMutations } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import { precision, formatDate, getStartDate, getEndDate, getYearMonthDayArray } from '@/utils/index'
 
 export default {
@@ -122,8 +122,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['updateMonths']),
-    ...mapMutations(['setCurrentTimedAutoPocketbook']),
+    ...mapMutations(['setCurrentTimedAutoPocketbook', 'addPocketbookToList', 'updatePocketbookById', 'removePocketbookById']),
     toManageIcons() {
       uni.navigateTo({
         url: '/pages/pocket-book/bookkeepingSettings',
@@ -160,7 +159,6 @@ export default {
     },
     submit() {
       if (this.currentAccountListIndex < 0) { return }
-
       this.primaryBtnDisabled = true
       uni.showLoading({ title: '正在提交数据...' })
       
@@ -172,8 +170,14 @@ export default {
       wx.cloud.callFunction({
         name: 'addPocketbook',
         data: submitData
-      }).then(() => {
-        this.updateMonths()
+      }).then(({ result }) => {
+        if (_.isEqual(submitData.type, 'add')) {
+          const _id = result
+          this.addPocketbookToList({ _id, ...submitData.data })
+        } else {
+          const _id = oldData._id
+          this.updatePocketbookById({ _id, ...submitData.data})
+        }
         uni.hideLoading()
         uni.navigateBack()
       }, () => {
@@ -215,6 +219,7 @@ export default {
         name: 'deletePocketbook',
         data: pocketbook
       }).then(() => {
+        this.removePocketbookById(pocketbook)
         uni.hideLoading()
         uni.navigateBack()
       }, () => {

@@ -111,7 +111,6 @@ export default {
     return {
       cWidth: 0,
       cHeight: 0,
-      pocketbookList: [],
       currentList: [],
       total: {
         in: 0,
@@ -125,6 +124,9 @@ export default {
   },
   computed: {
     ...mapState(['months']),
+    ...mapGetters({
+      pocketbookList: 'getPocketbookList',
+    }),
     monthList() {
       const currentMonths = _.filter(this.months, ['year', this.currentYear])
       return _.sortBy(currentMonths, 'month')
@@ -339,6 +341,7 @@ export default {
 
       return _.map(groupByType, (value, key) => {
         const data = parseFloat(precision(_.sumBy(value, 'amount')))
+        console.log(data)
         return { name: `总${key}`, data }
       })
     },
@@ -384,20 +387,16 @@ export default {
       })
     },
   },
-  onShow() {
-    uni.showLoading({ title: '正在获取数据' })
-    wx.cloud.init()
-    wx.cloud.callFunction({
-      name: 'getAllPocketbook',
-    }).then(({ result }) => {
-      this.pocketbookList = result.list
+  mounted() {
+    setTimeout(() => {
       if (this.isDateAll) {
         this.changeDateByAll()
       } else {
         this.changeDateByMonth(this.selectedDate)
       }
-      uni.hideLoading()
-    })
+    }, 100);
+  },
+  onShow() {
     wx.createSelectorQuery().selectViewport().scrollOffset()
       .exec(([{ scrollWidth, scrollHeight }]) => {
         this.cWidth = scrollWidth * 2

@@ -32,6 +32,7 @@ export default {
   },
   methods: {
     showCanvas(data) {
+      const colors = ['#1890ff', '#2fc25b', '#facc14', '#f04864', '#8543e0', '#90ed7d']
       if (this.width && this.height) {
         _self.cWidth = uni.upx2px(this.width)
         _self.cHeight = uni.upx2px(this.height)
@@ -48,6 +49,7 @@ export default {
           series: data.series,
           width: _self.cWidth,
           height: _self.cHeight,
+          colors,
         })
       }
 

@@ -48,7 +48,7 @@
 <script>
 import * as _ from 'lodash'
 import { mapMutations, mapGetters } from 'vuex'
-import { formatDate, formatMonth, getYearMonthArray } from '@/utils/index'
+import { formatDate, formatMonth, getYearMonthArray, getTotalByType, getDateString, sortBy } from '@/utils/index'
 const now = new Date()
 
 export default {
@@ -59,14 +59,15 @@ export default {
       outlay: 0,
       currentYear: now.getFullYear(),
       currentMonth: now.getMonth() + 1,
-      pocketbookList: [],
       currentMonthIndex: 0,
+      pocketbookList: [],
     }
   },
   computed: {
     ...mapGetters({
       monthList: 'getMonths',
       isLogined: 'isLogined',
+      allPocketbookList: 'getPocketbookList',
     })
   },
   filters: { formatDate },
@@ -78,7 +79,7 @@ export default {
       if (!_.isEqual(this.currentMonth, _month) ||
           !_.isEqual(this.currentYear, year)) {
         this.currentMonthIndex = value
-        this.loadData(year, _month)
+        this.getPocketBookListByMonth(year, _month)
       }
     },
     navigateTo() {
@@ -94,54 +95,49 @@ export default {
       this.setCurrentPocketbook(pocketbook)
       this.navigateTo()
     },
-    loadData(year = this.currentYear, month = this.currentMonth) {
-      uni.showLoading({ title: '正在获取数据' })
-      wx.cloud.init()
-      wx.cloud.callFunction({
-        name: 'getPocketbookListByMonth',
-        data: { year, month },
-      }).then(res => {
-        uni.hideLoading()
-        const pocketbookList = []
-        const list = res.result
-        this.getCurrentMonthTotal(_.concat([], ..._.values(list)))
-        _.forEach(list, (value, key) => {
-          pocketbookList.push({
-            date: key,
-            total: _.sumBy(value, item => {
-              return item.amount * (item.type === '收入' ? 1 : -1)
-            }),
-            list: value.sort((a , b) => b.timestamp - a.timestamp)
-          })
-        })
-        
-        this.pocketbookList = _.sortBy(pocketbookList, item => - new Date(item.date).getTime())
-        this.currentYear = year
-        this.currentMonth = month
-      }, () => {
-        uni.hideLoading()
-      })
-    },
     getCurrentMonthTotal(list) {
       const group = _.groupBy(list, 'type')
       this.income = _.sumBy(group['收入'], 'amount')
       this.outlay = _.sumBy(group['支出'], 'amount')
     },
+    getPocketBookListByMonth(year, month) {
+      const pocketbookList = []
+      const list = _.filter(this.allPocketbookList, pocketbook => {
+        return _.isEqual(year, pocketbook.current_year) &&
+               _.isEqual(month, pocketbook.current_month)
+      })
+      this.getCurrentMonthTotal(list)
+
+      const groupedByDay = _.groupBy(list, (item) => {
+        return getDateString(item.current_year, item.current_month, item.current_day)
+      })
+      _.forEach(groupedByDay, (value, key) => {
+          pocketbookList.push({
+            date: key,
+            list: sortBy(value, 'timestamp', true),
+            total: getTotalByType(value),
+          })
+        })
+
+      this.pocketbookList = sortBy(pocketbookList, 'date', true)
+      this.currentYear = year
+      this.currentMonth = month
+    },
     ...mapMutations({
       setCurrentPocketbook: 'setCurrentPocketbook',
     }),
-    pageInit() {
-      if (this.isLogined) {
-        this.loadData()
+    onPageInit() {
+      if (this.isLogined && this.allPocketbookList.length) {
+        this.getPocketBookListByMonth(this.currentYear, this.currentMonth)
       } else {
         setTimeout(() => {
-          this.pageInit()
-        }, 100);
+          this.onPageInit()
+        }, 200);
       }
     }
   },
   onShow() {
-    this.pageInit()
+    this.onPageInit()
   }
 }
 </script>
@@ -325,7 +321,7 @@ export default {
         &:after {
           content: "Auto";
           position: absolute;
-          top: 0;
+          top: -7px;
           left: 50%;
           font-size: 12px;
           line-height: 1;

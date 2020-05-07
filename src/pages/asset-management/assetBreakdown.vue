@@ -1,11 +1,10 @@
 <template>
   <view class="container">
-    <view class="card" :style="detail.bgColor">
+    <view class="card" :style="accountDetail.bgColor">
       <view class="card-line">
         <view class="card-item">
           <view class="amount large"
-            @click="editAmount"
-            v-if="!editing">{{ detail.balance | amount }}</view>
+            v-if="!editing">{{ accountDetail.balance | amount }}</view>
           <input class="uni-input"
             type="digit"
             v-model="balance"
@@ -16,18 +15,18 @@
       </view>
       <view class="card-line">
         <view class="card-item">
-          <view class="amount">{{ detail.inTotal | amount }}</view>
+          <view class="amount">{{ inTotal | amount }}</view>
           <view class="label">累计流入</view>
         </view>
         <view class="card-item">
-          <view class="amount">{{ detail.outTotal | amount }}</view>
+          <view class="amount">{{ outTotal | amount }}</view>
           <view class="label">累计流出</view>
         </view>
       </view>
     </view>
     <view class="button-group" v-if="editing">
       <button type="default" size="mini" @click="viewAmount">取消</button>
-      <button type="primary" size="mini" @click="save" :style="detail.bgColor" :loading="saving">保存</button>
+      <button type="primary" size="mini" @click="save" :style="accountDetail.bgColor" :loading="saving">保存</button>
     </view>
     <view class="list" v-if="pocketbookList.length">
       <view class="list-item" v-for="pocketbook in pocketbookList" :key="pocketbook.date">
@@ -59,10 +58,10 @@
     <view class="button-group footer" v-if="!editing">
       <button
         type="primary"
-        :style="detail.bgColor"
+        :style="accountDetail.bgColor"
         :disabled="removing"
         :loading="saving"
-        @click="navigateToEditAccount(detail)">编辑</button>
+        @click="navigateToEditAccount()">编辑</button>
       <button
         type="delete"
         :disabled="saving"
@@ -74,7 +73,15 @@
 <script>
 import * as _ from 'lodash'
 import { mapGetters, mapMutations } from 'vuex'
-import { precision, formatDate, formatWeek } from '@/utils/index'
+import {
+  precision,
+  formatDate,
+  formatWeek,
+  getIconStyleByTypename,
+  getDateString,
+  getTotalByType,
+  sortBy,
+} from '@/utils/index'
 
 export default {
   name: 'asset-breakdown',
@@ -83,25 +90,21 @@ export default {
       editing: false,
       saving: false,
       removing: false,
-      balance: 0.00,
-      detail: {
-        bgColor: 'background-color: #fff',
-        balance: 0.00,
-        inTotal: 0.00,
-        outTotal: 0.00,
-      },
+      inTotal: 0,
+      outTotal: 0,
       pocketbookList: [],
     }
   },
   computed: {
     ...mapGetters({
       iconList: 'getBookkeepingTypeList',
+      accountDetail: 'getCurrentAccount',
+      allPocketbookList: 'getPocketbookList',
     })
   },
   filters: { formatDate, formatWeek },
   methods: {
-    navigateToEditAccount(data) {
-      this.setCurrentAccount(data)
+    navigateToEditAccount() {
       uni.navigateTo({
         url: '/pages/asset-management/addAccount',
       })
@@ -143,49 +146,46 @@ export default {
         this.viewAmount()
       })
     },
-    sumByType(list) {
-      return _.sumBy(list, item =>{
-        return item.amount * (item.type === '收入' ? 1 : -1)
-      })
-    },
     getIconData(item) {
-      console.log(item)
-      return _.find(this.iconList, {
-        name: item.type_name
-      })
+      const iconStyle = getIconStyleByTypename(this.iconList, item.type_name)
+      return { ...item, ...iconStyle }
     },
     formatPocketbookList(list) {
-      const pocketbookGroup = _.groupBy(list,
-        item => `${item.current_year}.${item.current_month}.${item.current_day}`)
+      const pocketbookList = []
+      const pocketbookGroup = _.groupBy(list, (item) => {
+        return getDateString(item.current_year, item.current_month, item.current_day)
+      })
 
-      const pocketbookList = _.map(pocketbookGroup, (list, key) => {
-        return {
-          date: key,
-          total: this.sumByType(list),
-          list: _.map(list, item => Object.assign({ ...item, ...this.getIconData(item) }))
-        }
-      });
-      console.log(pocketbookList)
+      _.forEach(pocketbookGroup, (value, key) => {
+          const currentList = _.map(value, item => this.getIconData(item))
 
-      return _.sortBy(pocketbookList, item => - new Date(item.date).getTime())
+          pocketbookList.push({
+            date: key,
+            total: getTotalByType(value),
+            list: sortBy(currentList, 'timestamp', true),
+          })
+        })
+
+      return sortBy(pocketbookList, 'date', true)
+    },
+    getPocketbookList(id) {
+      const pocketbookList = _.filter(this.allPocketbookList, (pocketbook) => {
+        return _.isEqual(id, pocketbook.account_id)
+      })
+      const pocketbookGroupedByType = _.groupBy(pocketbookList, 'type')
+      this.inTotal = _.sumBy(pocketbookGroupedByType['收入'], 'amount')
+      this.outTotal = _.sumBy(pocketbookGroupedByType['支出'], 'amount')
+
+      return this.formatPocketbookList(pocketbookList)
     },
     ...mapMutations(['setCurrentAccount'])
   },
-  onLoad(e) {
-    uni.showLoading({ title: '正在获取数据' })
-    const { id, name } = e;
-    wx.cloud.init()
-    wx.cloud.callFunction({
-      name: 'getAccountDetail',
-      data: { id }
-    }).then(({ result }) => {
-      this.detail = result
-      this.pocketbookList = this.formatPocketbookList(result.pocketbookList)
-      uni.hideLoading()
-    })
+  created() {
+    const { _id, name } = this.accountDetail
     uni.setNavigationBarTitle({
       title: name,
     })
+    this.pocketbookList = this.getPocketbookList(_id)
   }
 }
 </script>
@@ -194,7 +194,7 @@ export default {
 .container {
   position: relative;
   padding: 0 1rem;
-  padding-bottom: 100px;
+  padding-bottom: 60px;
   height: 100%;
   display: flex;
   flex-direction: column;

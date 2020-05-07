@@ -143,12 +143,38 @@ const getDuplicateModeValue = ([cycleIndex, suboptionIndex]) => {
 }
 
 const getIconStyleByTypename = (list, typename) => {
-  return _.find(list, ['type_name', typename])
+  return _.find(list, ['name', typename])
 }
 
 const getTomorrowTime = () => {
   const date = new Date()
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1).getTime()
+  return new Date(date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate() + 1).getTime()
+}
+
+const getCoefficientByType = type => {
+  return _.isEqual('收入', type) ? 1 : -1
+}
+
+const getTotalByType = (list, key = 'amount') => {
+  return _.sumBy(list, item => {
+    return item[key] * getCoefficientByType(item.type)
+  })
+}
+
+const sortBy = (list, key, _desc = false) => {
+  const desc = _desc ? 1 : -1
+  return list.sort((a, b) => {
+    return a[key] < b[key] ? desc : - desc
+  })
+}
+
+const getDateString = (year, _month, _day) => {
+  const month = `0${_month}`.substr(-2)
+  const day = `0${_day}`.substr(-2)
+  
+  return `${year}/${month}/${day}`
 }
 
 export {
@@ -167,4 +193,8 @@ export {
   getDuplicateModeValue,
   getIconStyleByTypename,
   getTomorrowTime,
+  getTotalByType,
+  getCoefficientByType,
+  getDateString,
+  sortBy,
 }

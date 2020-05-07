@@ -3,29 +3,29 @@
     <view class="top-fixed">
       <view class="net-assets">
         <view class="amount">
-          <text>{{ netAssets | amount }}</text>
+          <text>{{ myAssets.netAssets | amount }}</text>
         </view>
         <text class="label">净资产</text>
       </view>
       <view class="asset-situation">
         <view>
           <text class="label">负债</text>
-          <text class="amount">{{ debt | amount }}</text>
+          <text class="amount">{{ myAssets.debtAssets | amount }}</text>
         </view>
         <view>
           <text class="label">资产</text>
-          <text class="amount">{{ assets | amount }}</text>
+          <text class="amount">{{ myAssets.totalAssets | amount }}</text>
         </view>
       </view>
     </view>
-    <view class="account-list">
-      <text class="line-count">全部账户({{ accountList.length }})</text>
+    <view class="account-list" v-if="myAssets.accounts">
+      <text class="line-count">全部账户({{ myAssets.accounts.length }})</text>
       <view class="account-items">
         <view class="account-item"
-          v-for="account in accountList"
+          v-for="account in myAssets.accounts"
           :key="account._id"
           :style="account.bgColor"
-          @click="navigateToDetail(account._id, account.name)">
+          @click="navigateToDetail(account)">
           <view class="account-name">
             <image :src="account.iconPath" class="account-icon"></image>
             <view class="account-title">
@@ -44,7 +44,7 @@
   </view>
 </template>
 <script>
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: 'asset-management',
@@ -56,10 +56,16 @@ export default {
       accountList: [],
     }
   },
+  computed: {
+    ...mapGetters({
+      myAssets: 'getMyAssets',
+    })
+  },
   methods: {
-    navigateToDetail(id, name) {
+    navigateToDetail(data) {
+      this.setCurrentAccount(data)
       uni.navigateTo({
-        url: `/pages/asset-management/assetBreakdown?id=${id}&name=${name}`,
+        url: '/pages/asset-management/assetBreakdown',
       })
     },
     navigateToAddAccount() {
@@ -68,27 +74,7 @@ export default {
         url: '/pages/asset-management/addAccount',
       })
     },
-    loadData() {
-      uni.showLoading({ title: '正在获取数据' })
-      wx.cloud.init()
-      wx.cloud.callFunction({
-        name: 'getAccountList',
-      }).then(response => {
-        const result = response.result
-
-        this.netAssets = result.netAssets
-        this.assets = result.assets
-        this.debt = result.debt
-        this.accountList = result.list
-        uni.hideLoading()
-      }, () => {
-        uni.hideLoading()
-      })
-    },
     ...mapMutations(['setCurrentAccount'])
-  },
-  onShow() {
-    this.loadData()
   }
 }
 </script>

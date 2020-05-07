@@ -84,12 +84,47 @@
       <button type="primary"
         :loading="saving"
         @click="save">保存</button>
+      <button type="defualt" class="icon-button" @click="openHistoryList">
+        <image src="/static/history.png" class="icon"></image>
+      </button>
     </view>
+
+    <uni-popup
+      ref="history"
+      type="center">
+      <view class="history-list">
+        <view class="pocket-book"
+          v-for="item in pendingList"
+          :key="item._id">
+          <view class="pocket-book-icon"
+            :style="'color:' + item.pocketbook.color">
+            <image :src="item.pocketbook.path"></image>
+          </view>
+          <view class="pocket-book-info">
+            <text class="type">{{ item.pocketbook.type_name }}</text>
+            <text class="amount">{{ item.pocketbook.amount | amount }}</text>
+            <text class="sub-text">
+              <text>{{ item.pocketbook.account_name }}</text>
+              <text>{{ item.pocketbook.type }}</text>
+              <text>{{ item.pocketbook.description }}</text>
+            </text>
+          </view>
+          <view class="switch">
+            <switch
+              style="transform: scale(0.7)"
+              :checked="!item.disable"
+              @change="onSwitchChange($event, item)" />
+            <text class="sub-text">{{ item.pocketbook._description }}</text>
+          </view>
+        </view>
+      </view>
+    </uni-popup>
   </view>
 </template>
 <script>
 import * as _ from 'lodash'
 import { mapGetters, mapMutations } from 'vuex'
+import { uniPopup } from '@dcloudio/uni-ui'
 import {
   formatDateAsText,
   getDuplicateModeText,
@@ -126,14 +161,31 @@ export default {
   },
   computed: {
     ...mapGetters({
-      currentTimedAutoPocketbook: 'getCurrentTimedAutoPocketbook'
+      currentTimedAutoPocketbook: 'getCurrentTimedAutoPocketbook',
+      pendingList: 'getPendingPocketbookList',
     })
   },
   methods: {
-    ...mapMutations(['setCurrentTimedAutoPocketbook']),
+    ...mapMutations(['setCurrentTimedAutoPocketbook', 'updateTimedAutoBookkeeping']),
     goBack() {
       this.setCurrentTimedAutoPocketbook(undefined)
       uni.navigateBack()
+    },
+    onSwitchChange({ target: { value } }, item) {
+      const disable = !value
+      const { _id } = item
+
+      uni.showLoading({
+        title: '正在保存',
+      })
+      wx.cloud.init()
+      wx.cloud.callFunction({
+        name: 'updateTimedAutoBookkeeping',
+        data: { _id, disable }
+      }).then(() => {
+        this.updateTimedAutoBookkeeping({ _id, disable })
+        uni.hideLoading()
+      })
     },
     onCheckedChange({ target: { value } }) {
       this.isRepeat = value
@@ -155,6 +207,9 @@ export default {
     },
     onDuplicateModeChange({ detail: { value } }) {
       this.duplicateModeValue = value
+    },
+    openHistoryList() {
+      this.$refs['history'].open()
     },
     getSubmitPocketbook(isRepeat) {
       const { account_id, amount, type, type_name, description } = this.currentPocketbook
@@ -207,7 +262,8 @@ export default {
   created() {
     this.initDuplicateModeMultiOption()
     this.currentPocketbook = _.clone(this.currentTimedAutoPocketbook)
-  }
+  },
+  components: { uniPopup }
 }
 </script>
 <style lang="scss" scoped>
@@ -271,6 +327,78 @@ export default {
   }
 }
 
+.history-list {
+  padding: 0 10px;
+  width: 300px;
+  max-height: 400px;
+  border-radius: 10px;
+  overflow-y: auto;
+  background-color: #fff;
+  box-sizing: border-box;
+
+  .pocket-book {
+    padding-bottom: 5px;
+    margin: 5px 0;
+    border-bottom: 1px dashed #f1f2f7;
+    display: flex;
+    align-items: center;
+
+    &:last-of-type {
+      border-bottom: 0;
+    }
+
+    &-icon {
+      margin-right: 10px;
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
+      border-radius: 100%;
+      border: 1px solid;
+
+      & > image {
+        width: 100%;
+        height: 100%;
+        display: inline-block;
+      }
+    }
+
+    &-info {
+      font-size: 14px;
+      flex: 1 1 auto;
+
+      .amount {
+        margin-left: .5em;
+      }
+      .sub-text {
+        color: inherit;
+        font-size: 12px;
+        display: block;
+
+        text + text {
+          margin-left: .5em;
+        }
+
+        text:last-of-type {
+          color: #909390;
+        }
+      }
+    }
+  }
+  
+  .switch {
+    width: 55px;
+    text-align: center;
+
+    .sub-text {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      display: block;
+    }
+  }
+}
+
 .list {
   padding: 0 10px;
   height: calc(100% - 75px);
@@ -313,9 +441,26 @@ export default {
 
 .confirm {
   padding: 10px;
+  display: flex;
   
   button {
+    flex: 1 1 auto;
     font-size: 16px;
+  }
+
+  .icon-button {
+    margin-left: 10px;
+    padding: 0;
+    width: 50px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    image {
+      width: 30px;
+      height: 30px;
+    }
   }
 }
 </style>

@@ -25,7 +25,5 @@ exports.main = async (event) => {
       pocketbookList: 0
     }).end()
 
-  return _.groupBy(rs.list, item => {
-    return `${item.current_year}.${item.current_month}.${item.current_day}`
-  })
+  return rs.list
 }
