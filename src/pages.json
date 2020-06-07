@@ -1,6 +1,12 @@
 {
 	"pages": [
 		{
+			"path": "pages/tab-bar/Index",
+			"style": {
+				"navigationBarTitleText": "首页"
+			}
+		},
+		{
 			"path": "pages/tab-bar/PocketBook",
 			"style": {
 				"navigationBarTitleText": "记账"
@@ -50,6 +56,7 @@
 		}
 	],
 	"globalStyle": {
+		"navigationStyle": "custom",
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "记账本",
 		"navigationBarBackgroundColor": "#F8F8F8",
@@ -59,6 +66,8 @@
 		"color": "#7A7E83",
 		"selectedColor": "#FF6781",
 		"backgroundColor": "#FFFFFF",
+		"navigationStyle": "custom",
+		"borderStyle": "white",
 		"list": [{
 				"pagePath": "pages/tab-bar/PocketBook",
 				"iconPath": "static/pocket-book.png",

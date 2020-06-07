@@ -60,12 +60,12 @@ export default {
         fontSize: 11,
         title: {
           name: data.total,
-          color: '#333',
+          color: '#303133',
           fontSize: 18,
         },
         subtitle: {
           name: data.title,
-          color: '#999',
+          color: '#909399',
           fontSize: 12,
         },
         legend: {

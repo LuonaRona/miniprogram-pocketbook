@@ -12,12 +12,13 @@ const getUsers = async () => {
   return rs.data
 }
 
-const createUser = async (_openid) => {
+const createUser = async (_openid, name) => {
   const bookkeepingTypes = await cloud.database().collection('bookkeeping_type').get()
 
   return await cloud.database().collection('users').add({
     data: {
       _openid,
+      name,
       activated: false,
       createdTimer: new Date().getTime(),
       bookkeepingTypes: _.map(bookkeepingTypes.data, '_id')
@@ -26,6 +27,9 @@ const createUser = async (_openid) => {
 }
 
 const generateUserAccount = async (_openid) => {
+  const accountList = await cloud.database().collection('account')
+        .where({ _openid }).get().then(({ data }) => data)
+  if (accountList.length) return Promise.resolve()
   const data = initialAccountData
   
   return new Promise((resolve, reject) => {
@@ -40,23 +44,27 @@ const generateUserAccount = async (_openid) => {
 }
 
 const activateUser = async (id) => {
-  return await cloud.database().collection('users').where({
-    _openid: id,
-  }).update({
-    data: {
-      activated: true
-    }
-  })
+  return await cloud.database().collection('users')
+        .where({ _openid: id })
+        .update({ data: { activated: true }})
+        .then(() => {
+          return cloud.database().collection('users')
+                .where({ _openid: id }).get()
+                .then(({ data }) => {
+                    return data[0]
+                })
+        })
 }
 
 exports.main = async (event, context) => {
   const id = cloud.getWXContext().OPENID
+  const { name } = event
   if (!id) { return '用户ID获取失败' }
   const users = await getUsers()
   const userExists = _.includes(_.map(users, '_openid'), id)
 
   if (!userExists) {
-    return await createUser(id).then(() => {
+    return await createUser(id, name).then(() => {
       return generateUserAccount(id).then(() => {
         return activateUser(id)
       })

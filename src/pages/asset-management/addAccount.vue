@@ -1,5 +1,9 @@
 <template>
   <view>
+    <cu-custom bgColor="bg-primary-light" :isBack="true">
+      <block slot="backText">返回</block>
+      <block slot="content">账户管理</block>
+    </cu-custom>
     <view class="preview">
       <view class="account-item" :style="currentAccountBgColor">
         <view class="account-name">
@@ -65,16 +69,16 @@
     </view>
 
     <view class="confirm">
-      <button class="confirm-primary"
-        type="primary"
+      <view class="cu-btn bg-primary"
         :loading="saving"
         :style="currentAccountBgColor"
-        @click="save">保存</button>
+        @click="save">保存</view>
     </view>
 
-    <uni-popup
-      ref="color-board"
-      type="center">
+    <cu-modal
+      modalTitle="请选择账户颜色"
+      :visible.sync="colorModalVisible"
+      v-if="colorModalVisible">
       <view class="color-board-list">
         <view class="color-board"
           v-for="bgColor in bgColors"
@@ -83,11 +87,12 @@
           @click="onChangeAccountBgColor(bgColor)">
         </view>
       </view>
-    </uni-popup>
+    </cu-modal>
 
-    <uni-popup
-      ref="icon-list"
-      type="center">
+    <cu-modal
+      modalTitle="请选择账户图标"
+      :visible.sync="iconModalVisible"
+      v-if="iconModalVisible">
       <view class="icon-list" :style="currentAccountBgColor">
         <image class="account-icon"
           v-for="iconPath in accountIcons"
@@ -96,13 +101,16 @@
           @click="onChangeAccountIcon(iconPath)">
         </image>
       </view>
-    </uni-popup>
+    </cu-modal>
+    
+    <loading ref="loading"></loading>
+    <message ref="msg"></message>
   </view>
 </template>
 
 <script>
 import * as _ from 'lodash'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import { uniPopup } from '@dcloudio/uni-ui'
 import { precision } from '@/utils/index'
 import bgColors from './accountBgColors'
@@ -112,6 +120,7 @@ export default {
   name: 'add-account',
   data() {
     return {
+      title: '新增账户',
       saving: false,
       account: {
         name: '',
@@ -133,6 +142,8 @@ export default {
         { type: 'asset', typeName: '资产账户' },
         // { type: 'debt', typeName: '负债账户' }
       ],
+      colorModalVisible: false,
+      iconModalVisible: false,
     }
   },
   watch: {
@@ -153,9 +164,7 @@ export default {
     onInit() {
       const isEdit = !_.isNil(this.currentAccountDetail)
       if (isEdit) {
-        uni.setNavigationBarTitle({
-          title: '编辑账户信息',
-        })
+        this.title = '编辑账户信息'
         this.account = this.currentAccountDetail
         this.currentAccountBgColor = this.account.bgColor
         this.currentAccountIcon = this.account.iconPath
@@ -173,13 +182,13 @@ export default {
       this.closeIconPopup()
     },
     onAccountTypeChange(event) {
-      console.log(event)
     },
     save() {
       const name = this.account.name
       const balance = parseFloat(precision(this.account.balance))
 
       if (name && _.isNumber(balance)) {
+        this.$refs.loading.show({ title: '正在保存...' })
         this.saving = true
         this.account.bgColor = this.currentAccountBgColor
         this.account.iconPath = this.currentAccountIcon
@@ -191,24 +200,36 @@ export default {
           name: 'addAccount',
           data: this.account
         }).then((res) => {
+          console.log(this.account)
+          this.updateAccountInfoById(this.account)
+          this.$refs.loading.hide()
+          this.$refs.msg.show({
+            message: '修改成功！',
+            type: 'success'
+          })
           uni.navigateBack()
         }, () => {
-          uni.navigateBack()
+          this.$refs.loading.hide()
+          this.$refs.msg.show({
+            message: '修改失败！',
+            type: 'error'
+          })
         })
       }
     },
     openColorPopup() {
-      this.$refs['color-board'].open()
+      this.colorModalVisible = true
     },
     closeColorPopup() {
-      this.$refs['color-board'].close()
+      this.colorModalVisible = false
     },
     openIconPopup() {
-      this.$refs['icon-list'].open()
+      this.iconModalVisible = true
     },
     closeIconPopup() {
-      this.$refs['icon-list'].close()
-    }
+      this.iconModalVisible = false
+    },
+    ...mapMutations(['updateAccountInfoById'])
   },
   created() {
     this.onInit()
@@ -223,7 +244,7 @@ export default {
   &-item {
     padding: 10px 0;
     font-size: 16px;
-    border-bottom: 1px solid #f1f2f7;
+    border-bottom: 1px solid $light-grey;
     display: flex;
     justify-content: space-between;
 
@@ -271,8 +292,7 @@ export default {
 
 .color-board-list {
   padding: 15px 5px 5px 15px;
-  width: 240px;
-  border-radius: 10px;
+  width: 100%;
   background-color: #fff;
   display: flex;
   flex-wrap: wrap;
@@ -280,6 +300,7 @@ export default {
 
   .color-board {
     margin: 0 10px 10px 0;
+    min-width: 20%;
     height: 25px;
     flex: 1;
   }
@@ -293,8 +314,7 @@ export default {
 }
 
 .icon-list {
-  width: 240px;
-  border-radius: 10px;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -302,12 +322,14 @@ export default {
 
   .account-icon {
     margin: 10px;
+    width: 30px;
+    height: 30px;
   }
 }
 
 .preview {
   padding: 10px;
-  border-bottom: 1px dashed #f1f2f7;
+  border-bottom: 1px dashed $light-grey;
 }
 
 .account-item {
@@ -356,9 +378,8 @@ export default {
   margin-top: 10px;
   padding: 0 10px;
 
-  .confirm-primary {
-    font-size: 16px;
-    line-height: 2.2;
+  .cu-btn {
+    width: 100%;
   }
 }
 </style>

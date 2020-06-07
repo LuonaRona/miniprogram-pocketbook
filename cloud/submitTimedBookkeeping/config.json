@@ -1,9 +1,9 @@
 {
   "triggers": [
     {
-      "name": "submitTimedBookkeeping2",
+      "name": "submitTimedBookkeeping",
       "type": "timer",
-      "config": "0 0 19 * * * *"
+      "config": "0 0 0 * * * *"
     }
   ]
 }

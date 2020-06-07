@@ -1,110 +1,100 @@
 <template>
-  <view class="container">
-    <view class="filtor">
-      <view class="date">
-        <image class="date-icon" src="/static/filtor.png"></image>
-        <text class="date-text">时间</text>
-      </view>
-      <view class="period">
-        <view class="period-item"
-          v-for="item in monthList"
-          :key="item.month"
-          :class="{'actived': selectedDate === item.month}"
-          @click="changeDateByMonth(item.month)">{{ item.month }}月</view>
-        <view class="period-item"
-          :class="{'actived': selectedDate === currentYear}"
-          @click="changeDateByYear()">{{ currentYear }}</view>
-        <view class="period-item"
-          :class="{'actived': isDateAll}"
-          @click="changeDateByAll()">合计</view>
-      </view>
-    </view>
-    <view class="total-filter">
-      <view class="total-filter-item"
-        :class="{'actived': selectedType === '支出'}"
-        @click="changeType('支出')">
-        <view class="amount">{{ total.out | amount }}</view>
-        <view class="label">总支出</view>
-      </view>
-      <view class="total-filter-item"
-        :class="{'actived': selectedType === '收入'}"
-        @click="changeType('收入')">
-        <view class="amount">{{ total.in | amount }}</view>
-        <view class="label">总收入</view>
-      </view>
-      <view class="total-filter-item"
-        :class="{'actived': isCashSurplus }"
-        @click="getCashSurplus()">
-        <view class="amount">{{ cashSurplusTotal | amount }}</view>
-        <view class="label">总结余</view>
-      </view>
-    </view>
-    <view class="ucharts">
-      <view class="ucharts-type btn-group">
-        <view
-          class="button"
-          :class="{'actived': isPieCharts()}"
-          @click="changeCharts('pie')">饼图</view>
-        <view
-          class="button"
-          :class="{'actived': isLineCharts()}"
-          @click="changeCharts('line')">折线图</view>
-      </view>
-      <view class="ucharts-content">
-        <canvas-pie
-          class="canvas"
-          :pieData="pieData"
-          :width="cWidth"
-          :height="cHeight"
-          v-if="isPieCharts() && pieData.series && pieData.series.length">
-        </canvas-pie>
-        <canvas-line
-          class="canvas"
-          :lineData="lineData"
-          :width="cWidth"
-          :height="cHeight"
-          v-else-if="isLineCharts() && currentList && currentList.length">
-        </canvas-line>
-        <div class="empty-text" v-else>当前没有记录哦！</div>
-      </view>
-    </view>
-    <view class="list" v-if="isPieCharts() && !isCashSurplus">
-      <view class="list-item" v-for="pocket in pieData.series" :key="pocket.name">
-        <view class="title">
-          <image :src="pocket.path" class="title-icon" :style="'color:' + pocket.color"></image>
-          <text>{{ pocket.name }}</text>
+  <view class="page">
+    <cu-custom bgColor="bg-primary-light" :isBack="false">
+      <block slot="backText">
+        <user-info></user-info>
+      </block>
+      <block slot="content">报表</block>
+    </cu-custom>
+    <view class="section">
+      <view class="filtor">
+        <view class="date">
+          <image class="date-icon" src="/static/filtor.png"></image>
+          <text class="date-text">时间</text>
         </view>
-        <text class="percentage">{{ pocket.percentage }}</text>
-        <text class="sub-total">{{ pocket.data | amount }}</text>
-      </view>
-    </view>
-    <view class="line-list" v-if="isLineCharts() && lineData.templateData">
-      <view class="line-list-item hd">
-        <text>时间</text>
-        <text>支出</text>
-        <text>收入</text>
-        <text>结余</text>
-      </view>
-      <view class="line-list-content">
-        <view class="line-list-item" v-for="row in lineData.templateData" :key="row.date">
-          <text>{{ row.date }}</text>
-          <text>{{ row.outTotal | amount }}</text>
-          <text>{{ row.inTotal | amount }}</text>
-          <text>{{ row.cashSurplusTotal | amount }}</text>
+        <view class="period">
+          <view class="period-item"
+            v-for="item in monthList"
+            :key="item.month"
+            :class="{'actived': selectedDate === item.month}"
+            @click="changeDateByMonth(item.month)">{{ item.month }}月</view>
+          <view class="period-item"
+            :class="{'actived': selectedDate === currentYear}"
+            @click="changeDateByYear()">{{ currentYear }}</view>
+          <view class="period-item"
+            :class="{'actived': isDateAll}"
+            @click="changeDateByAll()">合计</view>
         </view>
       </view>
+      <view class="total-filter">
+        <view class="total-filter-item"
+          :class="{'actived': selectedType === '支出'}"
+          @click="changeType('支出')">
+          <view class="amount">{{ total.out | amount }}</view>
+          <view class="label">总支出</view>
+        </view>
+        <view class="total-filter-item"
+          :class="{'actived': selectedType === '收入'}"
+          @click="changeType('收入')">
+          <view class="amount">{{ total.in | amount }}</view>
+          <view class="label">总收入</view>
+        </view>
+        <view class="total-filter-item"
+          :class="{'actived': isCashSurplus }"
+          @click="getCashSurplus()">
+          <view class="amount">{{ cashSurplusTotal | amount }}</view>
+          <view class="label">总结余</view>
+        </view>
+      </view>
+      <view class="ucharts">
+        <view class="ucharts-type btn-group">
+          <view
+            class="button"
+            :class="{'actived': isPieCharts()}"
+            @click="changeCharts('pie')">饼图</view>
+          <view
+            class="button"
+            :class="{'actived': isLineCharts()}"
+            @click="changeCharts('line')">折线图</view>
+        </view>
+        <view class="ucharts-content">
+          <canvas-pie
+            class="canvas"
+            :pieData="pieData"
+            :width="cWidth"
+            :height="cHeight"
+            v-if="isPieCharts() && pieData.series && pieData.series.length">
+          </canvas-pie>
+          <canvas-line
+            class="canvas"
+            :lineData="lineData"
+            :width="cWidth"
+            :height="cHeight"
+            v-else-if="isLineCharts() && currentList && currentList.length">
+          </canvas-line>
+          <div class="empty-text" v-else>当前没有记录哦！</div>
+        </view>
+      </view>
+      <canvas-pie-data-list :list="pieData.series"
+        v-if="isPieCharts() && !isCashSurplus">
+      </canvas-pie-data-list>
+      <canvas-line-data-list
+        :list="lineData.templateData"
+        v-if="isLineCharts() && lineData.templateData">
+      </canvas-line-data-list>
     </view>
   </view>
 </template>
 <script>
 import * as _ from 'lodash'
 import { mapGetters, mapState } from 'vuex'
+import { precision, formatDay } from '@/utils/index'
 import CanvasPie from '@/components/u-charts/canvas-pie'
 import CanvasLine from '@/components/u-charts/canvas-line'
-import { precision, formatDay } from '@/utils/index'
+import CanvasLineDataList from '@/components/canvas-line-data-list/CanvasLineDataList'
+import CanvasPieDataList from '@/components/canvas-pie-data-list/CanvasPieDataList'
 
 const now = new Date()
-
 export default {
   name: 'report-charts',
   data() {
@@ -341,7 +331,6 @@ export default {
 
       return _.map(groupByType, (value, key) => {
         const data = parseFloat(precision(_.sumBy(value, 'amount')))
-        console.log(data)
         return { name: `总${key}`, data }
       })
     },
@@ -400,17 +389,13 @@ export default {
     wx.createSelectorQuery().selectViewport().scrollOffset()
       .exec(([{ scrollWidth, scrollHeight }]) => {
         this.cWidth = scrollWidth * 2
-        this.cHeight = scrollHeight * 2 - 670
+        this.cHeight = scrollHeight * 2 - 738
       })
   },
-  components: { CanvasPie, CanvasLine }
+  components: { CanvasPie, CanvasLine, CanvasPieDataList, CanvasLineDataList }
 }
 </script>
 <style lang="scss" scoped>
-.container {
-  height: 100%;
-}
-
 .filtor, .total-filter, .ucharts, .list {
   box-sizing: border-box;
 }
@@ -418,7 +403,7 @@ export default {
 .filtor {
   height: 45px;
   font-size: 12px;
-  border-bottom: 1px solid #f1f2f7;
+  border-bottom: 1px solid $light-grey;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -426,7 +411,7 @@ export default {
 
 .date {
   padding: 0 .5rem 0 .1rem;
-  border-right: 1px solid #f1f2f7;
+  border-right: 1px solid $light-grey;
   white-space: nowrap;
 
   &-icon {
@@ -453,14 +438,14 @@ export default {
     cursor: pointer;
 
     &.actived {
-      color: #FF6781;
+      color: $primary-color;
     }
   }
 }
 
 .total-filter {
   height: 75px;
-  border-bottom: 1px solid #f1f2f7;
+  border-bottom: 1px solid $light-grey;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -471,10 +456,10 @@ export default {
     cursor: pointer;
 
     &.actived {
-      color: #FF6781;
+      color: $primary-color;
 
       .label {
-        color: #FF6781;
+        color: $primary-color;
       }
     }
 
@@ -483,7 +468,7 @@ export default {
     }
 
     .label {
-      color: #909399;
+      color: $secondary-text;
       font-size: 13px;
     }
   }
@@ -492,7 +477,7 @@ export default {
 .ucharts {
   height: calc(100% - 300px);
   overflow: hidden;
-  border-bottom: 1px solid #f1f2f7;
+  border-bottom: 1px solid $light-grey;
 
   .btn-group {
     margin: 5px 0;
@@ -505,7 +490,7 @@ export default {
       line-height: 25px;
       text-align: center;
       font-size: 14px;
-      color: #909399;
+      color: $secondary-text;
       border: 1px solid;
       display: inline-block;
       z-index: 1;
@@ -522,7 +507,7 @@ export default {
       }
 
       &.actived {
-        color: #FF6781;
+        color: $primary-color;
         z-index: 2;
       }
     }
@@ -543,89 +528,13 @@ export default {
   }
 }
 
-.list {
-  height: 180px;
-  background-color: #f1f2f7;
-  overflow: auto;
-
-  &-item {
-    padding: .5rem 1rem .5rem .7rem;
-    border-bottom: 1px dashed #f1f2f7;
-    display: flex;
-    justify-content: space-between;
-    font-size: 15px;
-    background-color: #fff;
-
-    .title, .percentage, .sub-total {
-      flex: 1;
-    }
-
-    .title {
-      text-align: left;
-      display: flex;
-
-      &-icon {
-        margin-right: .3rem;
-        width: 20px;
-        height: 20px;
-        border: 1px solid;
-        border-radius: 100%;
-      }
-    }
-
-    .percentage {
-      text-align: center;
-    }
-
-    .sub-total {
-      text-align: right;
-    }
-  }
-}
-
-.line-list {
-  height: 180px;
-
-  &-content {
-    height: calc(100% - 25px);
-    overflow: auto;
-  }
-
-  &-item {
-    padding: 8px 8px;
-    font-size: 12px;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    &.hd {
-      padding-top: 0;
-      padding-bottom: 0;
-      height: 25px;
-      line-height: 25px;
-      color: #909399;
-      background-color: #f1f2f7;
-    }
-
-    & > text {
-      padding: .2rem;
-      flex: 1;
-
-      &:first-of-type {
-        color: #909399;
-      }
-    }
-  }
-}
-
 .empty-text {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   margin: 0 auto;
-  color: #666;
+  color: #606266;
   font-size: 16px;
   font-weight: 300;
   text-align: center;

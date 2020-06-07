@@ -14,9 +14,9 @@ exports.main = (event, context) => {
       data: { ...event, _openid }
     })
   } else {
-    const { name, balance, bgColor, desctiption, iconPath } = event
+    const { name, balance, bgColor, description, iconPath } = event
     return db.collection('account').doc(event._id).update({
-      data: { _openid, name, balance, bgColor, desctiption, iconPath }
+      data: { _openid, name, balance, bgColor, description, iconPath }
     })
   }
 }

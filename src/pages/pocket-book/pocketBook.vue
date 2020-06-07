@@ -1,35 +1,24 @@
 <template>
   <view class="container">
-    <view class="pocketbook-type">
-      <view class="outlay"
-        :class="{'actived': isActivedTab('支出')}"
-        @click="onTypeChange('支出')">支出</view>
-      <view class="income"
-        :class="{'actived': isActivedTab('收入')}"
-        @click="onTypeChange('收入')">收入</view>
-      <view class="h-line"
-        :style="{ 'transform': isActivedTab('支出') ? 'translateX(0)' : 'translateX(100%)'}"></view>
-    </view>
+    <cu-custom bgColor="bg-primary-light" :isBack="true">
+      <block slot="backText">返回</block>
+      <block slot="content">记一笔</block>
+    </cu-custom>
+    <pocketbook-type-tab
+      :type="type"
+      @onTypeChange="onTypeChange($event)">
+    </pocketbook-type-tab>
     <view class="pocketbook-option">
-      <view class="date v-line">
-        <image class="icon" src="/static/date.png"></image> 
-        <picker class="picker" mode="date" :value="date" :start="startDate" :end="endDate" @change="onDateChange">
-          <view class="uni-input">{{ date | formatDate }}</view>
-        </picker>
-      </view>
-      <view class="account v-line">
-        <image class="icon" src="/static/asset-management.png"></image>
-        <picker class="picker"
-          :value="currentAccountListIndex"
-          :range="accountList"
-          range-key="name"
-          @change="onAccountChange">
-          <view class="uni-input"
-                :class="{ 'error': currentAccountListIndex < 0}">
-            {{ accountList[currentAccountListIndex].name || '账户不存在' }}
-          </view>
-        </picker>
-      </view>
+      <date-picker
+        class="divider"
+        :date="date"
+        @onSelected="onDateChange($event)">
+      </date-picker>
+      <account-picker
+        class="divider"
+        :accountId="accountId"
+        @onSelected="onAccountChange($event)">
+      </account-picker>
       <view class="desc">
         <image class="icon" src="/static/desc.png"></image>
         <input type="text" class="uni-input" v-model="description" placeholder="写点啥备注下">
@@ -46,58 +35,68 @@
       <text class="placeholder" v-if="!hasValue">0.00</text>
     </view>
     <view class="grid-icons" v-if="currentIconList.length">
-      <view class="grid-item"
+      <bookkeeping-icon
+        class="grid-item"
         v-for="(icon, index) in currentIconList"
         :index="index"
+        :path="icon.path"
+        :name="icon.name"
+        :color="icon.color"
+        :isActived="isActivedIcon(icon)"
         :key="index"
-        :class="{'actived': isActivedIcon(icon)}"
-        :style="'color:' + icon.color"
-        @click="onIconChange(icon)">
-        <view class="image-icon">
-          <image :src="icon.path"></image>
-        </view>
-        <text class="text" :class="{'default-color': !isActivedIcon(icon)}">{{ icon.name }}</text>
-      </view>
-      <view class="grid-item" @click="toManageIcons()">
-        <view class="image-icon">
-          <image src="/static/setting.png"></image>
-        </view>
-        <text class="text default-color">设置</text>
-      </view>
+        @click.native="onIconChange(icon)"></bookkeeping-icon>
+      <bookkeeping-icon
+        class="grid-item"
+        path="/static/setting.png"
+        name="设置"
+        @click.native="toManageIcons">
+      </bookkeeping-icon>
     </view>
     <view class="confirm">
-      <button type="primary"
-        class="primary-btn"
+      <view
+        class="cu-btn bg-primary"
         :disabled="primaryBtnDisabled || currentAccountListIndex < 0"
-        @click="submit">提交</button>
-      <button type="default"
+        @click="submit">提交</view>
+      <view
+        class="cu-btn text-grey line-grey"
+        :disabled="primaryBtnDisabled || currentAccountListIndex < 0"
         v-if="!currentPocketbook"
-        class="primary-btn"
-        :disabled="primaryBtnDisabled || currentAccountListIndex < 0"
-        @click="toTimedAutoBookkeeping()">开启定时自动记</button>
-      <button type="warn"
-        v-if="currentPocketbook"
-        class="delete-btn"
+        @click="toTimedAutoBookkeeping()">开启定时自动记</view>
+      <view
+        class="cu-btn text-red line-red"
         :disabled="warnBtnDisabled"
-        @click="deletePocketbook(currentPocketbook)">删除</button>
+        v-if="currentPocketbook"
+        @click="deletePocketbook(currentPocketbook)">删除</view>
     </view>
+    <loading ref="loading"></loading>
+    <message ref="msg"></message>
   </view>
 </template>
 
 <script>
 import * as _ from 'lodash'
 import { mapGetters, mapMutations } from 'vuex'
-import { precision, formatDate, getStartDate, getEndDate, getYearMonthDayArray } from '@/utils/index'
+import {
+  precision,
+  formatDate,
+  getStartDate,
+  getEndDate,
+  getYearMonthDayArray
+} from '@/utils/index'
+import BookkeepingIcon from '@/components/bookkeeping-icon/BookkeepingIcon'
+import PocketbookTypeTab from '@/components/pocketbook-type-tab/PocketbookTypeTab'
+import DatePicker from '@/components/date-picker/DatePicker'
+import AccountPicker from '@/components/account-picker/AccountPicker'
 
 export default {
   name: 'pocket-book',
+  components: { PocketbookTypeTab, BookkeepingIcon, DatePicker, AccountPicker },
   data() {
     return {
       type: '支出',
-      currentAccountListIndex: 0,
       date: new Date(),
-      startDate: getStartDate(),
-      endDate: getEndDate(),
+      accountId: '',
+      accountName: '',
       description: '',
       amount: null,
       currentIconList: [],
@@ -122,24 +121,26 @@ export default {
     })
   },
   methods: {
-    ...mapMutations(['setCurrentTimedAutoPocketbook', 'addPocketbookToList', 'updatePocketbookById', 'removePocketbookById']),
+    ...mapMutations([
+      'setCurrentTimedAutoPocketbook',
+      'addPocketbookToList',
+      'updatePocketbookById',
+      'removePocketbookById',
+    ]),
     toManageIcons() {
       uni.navigateTo({
-        url: '/pages/pocket-book/bookkeepingSettings',
+        url: `/pages/pocket-book/bookkeepingSettings?type=${this.type}`,
       })
     },
     toTimedAutoBookkeeping() {
       this.setCurrentTimedAutoPocketbook({
-        account_name: this.accountList[this.currentAccountListIndex].name,
+        account_name: this.accountName,
         ...this.currentIconItem,
         ...this.getSubmitData()
       })
       uni.navigateTo({
         url: '/pages/pocket-book/timedAutoBookkeeping',
       })
-    },
-    isActivedTab(type) {
-      return this.type === type
     },
     isActivedIcon(icon) {
       return this.currentIconItem.name === icon.name
@@ -148,19 +149,20 @@ export default {
       this.type = type
       this.getCurrentIconList()
     },
-    onAccountChange({ target: { value } }) {
-      this.currentAccountListIndex = value
+    onDateChange(date) {
+      this.date = date
     },
-    onDateChange({ target: { value } }) {
-      this.date = value
+    onAccountChange({accountId, accountName}) {
+      this.accountId = accountId
+      this.accountName = accountName
     },
     onIconChange(value) {
       this.currentIconItem = value
     },
     submit() {
-      if (this.currentAccountListIndex < 0) { return }
+      if (!this.accountId) { return }
       this.primaryBtnDisabled = true
-      uni.showLoading({ title: '正在提交数据...' })
+      this.$refs.loading.show({ title: '提交中' })
       
       const data = this.getSubmitData();
       const oldData = this.currentPocketbook
@@ -178,11 +180,18 @@ export default {
           const _id = oldData._id
           this.updatePocketbookById({ _id, ...submitData.data})
         }
-        uni.hideLoading()
+        this.$refs.loading.hide()
+        this.$refs.msg.show({
+          message: '提交成功！',
+          type: 'success',
+        })
         uni.navigateBack()
       }, () => {
-        uni.hideLoading()
-        uni.navigateBack()
+        this.$refs.loading.hide()
+        this.$refs.msg.show({
+          message: '提交失败！',
+          type: 'error',
+        })
       })
     },
     getCurrentIconList() {
@@ -206,35 +215,42 @@ export default {
       } = this.currentPocketbook
       this.onTypeChange(type)
       this.date = new Date(current_year, current_month - 1, current_day, 0, 0, 0)
-      this.currentAccountListIndex = _.findIndex(this.accountList, account => _.isEqual(account._id, account_id))
+      this.accountId = account_id
       this.description = description
       this.amount = amount
       this.currentIconItem = { name, color, path }
     },
     deletePocketbook(pocketbook) {
       this.warnBtnDisabled = true
-      uni.showLoading({ title: '正在删除...' })
+      this.$refs.loading.show({ title: '正在删除...' })
+
       wx.cloud.init()
       wx.cloud.callFunction({
         name: 'deletePocketbook',
         data: pocketbook
       }).then(() => {
         this.removePocketbookById(pocketbook)
-        uni.hideLoading()
+        this.$refs.loading.hide()
+        this.$refs.msg.show({
+          message: '删除成功！',
+          type: 'success',
+        })
         uni.navigateBack()
       }, () => {
-        uni.navigateBack()
+        this.$refs.msg.show({
+          message: '删除失败！',
+          type: 'error',
+        })
       })
     },
     getSubmitData() {
-      const { type, date, description, currentIconItem, currentAccountListIndex } = this
-      const account_id = this.accountList[currentAccountListIndex]._id
+      const { type, date, description, currentIconItem, accountId } = this
       const [current_year, current_month, current_day] = getYearMonthDayArray(formatDate(date))
       const amount = parseFloat(precision(this.amount))
 
       return {
         type,
-        account_id,
+        account_id: accountId,
         amount: _.isNumber(amount) ? amount : 0,
         current_year,
         current_month,
@@ -250,6 +266,9 @@ export default {
       this._pocketbook = this.currentPocketbook
       this.setDefualtData()
     }
+    this.getCurrentIconList()
+  },
+  onShow() {
     this.getCurrentIconList()
   }
 }
@@ -268,30 +287,14 @@ export default {
   font-size: 12px;
   display: flex;
 
-  .icon, .picker, .uni-input {
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  .uni-input {
-    font-size: 14px;
-
-    &.error {
-      color: #F56C6C;
-    }
-  }
-
   .icon {
-    width: 23px;
-    height: 23px;
+    width: 22px;
+    height: 22px;
   }
 
-  .picker {
-    padding: 0 .4rem 0 .2rem;
-  }
-
-  .v-line {
+  .divider {
     position: relative;
+    padding: 0 6px;
 
     &:after {
       position: absolute;
@@ -300,53 +303,19 @@ export default {
       content: "";
       width: 1px;
       height: 60%;
-      background-color: #666;
+      background-color: #606266;
       display: block;
     }
   }
 
-  .date, .account {
-    margin-right: 5px;
-    white-space: nowrap;
-  }
-
   .desc {
-    white-space: nowrap;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
 
     .uni-input {
-      width: 130px;
+      min-width: 130px;
     }
-  }
-}
-.pocketbook-type {
-  position: relative;
-  padding: 0 25px;
-  box-sizing: border-box;
-  display: flex;
-  
-  .income, .outlay {
-    padding: 0 5px;
-    font-size: 14px;
-    font-weight: bold;
-    line-height: 2;
-    text-align: center;
-    flex: 1;
-    cursor: pointer;
-
-    &.actived {
-      color: #FF6781;
-    }
-  }
-
-  .h-line {
-    position: absolute;
-    width: calc(50% - 25px);
-    height: 2px;
-    bottom: 0;
-    border-radius: 2px;
-    background-color: #FF6781;
-    transform: translateX(0);
-    transition: .3s all ease;
   }
 }
 
@@ -357,7 +326,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #FF6781;
+  background-color: $primary-color;
   box-sizing: border-box;
 
   .name {
@@ -394,37 +363,9 @@ export default {
   .grid-item {
     margin: 5px 0;
     width: 20%;
-    font-size: 14px;
-    text-align: center;
-    cursor: pointer;
-
-    &.actived {
-      .image-icon {
-        border: 1px solid;
-      }
-    }
-
-    .image-icon {
-      margin: 5px auto;
-      width: 34px;
-      height: 34px;
-      color: inherit;
-      border-radius: 100%;
-      border: 1px solid transparent;
-
-      & > image {
-        margin-top: 2px;
-        width: 30px;
-        height: 30px;
-      }
-    }
-
-    .text.default-color {
-      color: #303133;
-    }
   }
-
 }
+
 .confirm {
   position: absolute;
   bottom: 0;
@@ -435,26 +376,8 @@ export default {
   justify-content: space-around;
   box-sizing: border-box;
 
-  .primary-btn, .delete-btn {
-    font-size: 16px;
-    flex: 1;
-
-    &:after {
-      border: 1px solid;
-      color: inherit;
-    }
-
-    & + .primary-btn {
-      margin-left: 5px;
-      color: #666;
-      background: transparent;
-    }
-  }
-
-  .delete-btn {
-    margin-left: 5px;
-    color: $uni-color-error;
-    background: transparent;
+  .cu-btn {
+    width: 48%;
   }
 }
 </style>

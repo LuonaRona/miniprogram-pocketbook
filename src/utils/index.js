@@ -128,6 +128,12 @@ const formatDay = (day, month, year) => {
   return `${dd}日`
 }
 
+const getDateCnMonthAndDate = (_date) => {
+  const date = _date ? new Date(_date) : new Date()
+
+  return formatDay(date.getDate(), date.getMonth() + 1)
+}
+
 const getDuplicateModeText = ([cycleIndex, suboptionIndex]) => {
   if (_.isNil(cycleIndex) || _.isNil(suboptionIndex)) return ''
   const optionArray = [daySuboption, weekSuboption, monthSuboption, yearSuboption]
@@ -177,6 +183,10 @@ const getDateString = (year, _month, _day) => {
   return `${year}/${month}/${day}`
 }
 
+const zeroPadding = (num) => {
+  return `0${num}`.substr(-2)
+}
+
 export {
   precision,
   formatDate,
@@ -197,4 +207,6 @@ export {
   getCoefficientByType,
   getDateString,
   sortBy,
+  zeroPadding,
+  getDateCnMonthAndDate,
 }

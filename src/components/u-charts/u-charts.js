@@ -35,9 +35,9 @@ var config = {
   pieChartLinePadding: 15,
   pieChartTextPadding: 5,
   xAxisTextPadding: 3,
-  titleColor: '#333333',
+  titleColor: '#303133',
   titleFontSize: 20,
-  subtitleColor: '#999999',
+  subtitleColor: '#909399',
   subtitleFontSize: 15,
   toolTipPadding: 3,
   toolTipBackground: '#000000',
@@ -1808,7 +1808,7 @@ function drawPointText(points, series, config, context) {
       //var formatVal = series.format ? series.format(data[index]) : data[index];
       context.beginPath();
       context.setFontSize(series.textSize || config.fontSize);
-      context.setFillStyle(series.textColor || '#666666');
+      context.setFillStyle(series.textColor || '#606266');
       var value = data[index]
       if (typeof data[index] === 'object' && data[index] !== null) {
 				if (data[index].constructor == Array) {
@@ -1847,7 +1847,7 @@ function drawGaugeLabel(gaugeOption, radius, centerPosition, opts, config, conte
     var startY = pos.y;
     context.beginPath();
     context.setFontSize(config.fontSize);
-    context.setFillStyle(gaugeOption.labelColor || '#666666');
+    context.setFillStyle(gaugeOption.labelColor || '#606266');
     context.fillText(labelText, startX, startY + config.fontSize / 2);
     context.closePath();
     context.stroke();
@@ -1880,7 +1880,7 @@ function drawRadarLabel(angleList, radius, centerPosition, opts, config, context
     }
     context.beginPath();
     context.setFontSize(config.fontSize);
-    context.setFillStyle(radarOption.labelColor || '#666666');
+    context.setFillStyle(radarOption.labelColor || '#606266');
     context.fillText(opts.categories[index] || '', startX, startY + config.fontSize / 2);
     context.closePath();
     context.stroke();
@@ -1991,7 +1991,7 @@ function drawPieText(series, opts, config, context, radius, center) {
     context.fill();
     context.beginPath();
     context.setFontSize(item.textSize || config.fontSize);
-    context.setFillStyle(item.textColor || '#666666');
+    context.setFillStyle(item.textColor || '#606266');
     context.fillText(item.text, textStartX, textPosition.y + 3);
     context.closePath();
     context.stroke();
@@ -2056,7 +2056,7 @@ function drawMarkLine(opts, config, context) {
     let item = assign({}, {
       lineColor: '#DE4A42',
       showLabel: false,
-      labelFontColor: '#666666',
+      labelFontColor: '#606266',
       labelBgColor: '#DFE8FF',
       labelBgOpacity: 0.8,
       yAxisIndex: 0
@@ -2277,7 +2277,7 @@ function drawYAxisTitle(title, opts, config, context) {
   context.save();
   context.beginPath();
   context.setFontSize(config.fontSize);
-  context.setFillStyle(opts.yAxis.titleFontColor || '#333333');
+  context.setFillStyle(opts.yAxis.titleFontColor || '#303133');
   context.translate(0, opts.height);
   context.rotate(-90 * Math.PI / 180);
   context.fillText(title, startX, opts.padding[3] + 0.5 * config.fontSize);
@@ -3234,7 +3234,7 @@ function drawXAxis(categories, opts, config, context) {
         }
         context.beginPath();
         context.setFontSize(xAxisFontSize);
-        context.setFillStyle(opts.xAxis.fontColor || '#666666');
+        context.setFillStyle(opts.xAxis.fontColor || '#606266');
         context.fillText(String(item), xAxisPoints[index] + offset, startY + xAxisFontSize + (config.xAxisHeight - scrollHeight - xAxisFontSize) / 2);
         context.closePath();
         context.stroke();
@@ -3245,7 +3245,7 @@ function drawXAxis(categories, opts, config, context) {
         context.save();
         context.beginPath();
         context.setFontSize(xAxisFontSize);
-        context.setFillStyle(opts.xAxis.fontColor || '#666666');
+        context.setFillStyle(opts.xAxis.fontColor || '#606266');
         var textWidth = measureText(String(item),xAxisFontSize);
         var offset = - textWidth;
         if(boundaryGap == 'center'){
@@ -3364,7 +3364,7 @@ function drawYAxis(series, opts, config, context) {
         context.setFontSize(yAxisFontSize);
         context.setLineWidth(1*opts.pixelRatio);
         context.setStrokeStyle(yData.axisLineColor||'#cccccc');
-        context.setFillStyle(yData.fontColor|| '#666666');
+        context.setFillStyle(yData.fontColor|| '#606266');
         if(yAxisWidth.position=='left'){
           context.fillText(String(item), tStartLeft - yAxisWidth.width , pos + yAxisFontSize / 2);
           //画刻度线
@@ -3405,7 +3405,7 @@ function drawYAxis(series, opts, config, context) {
         let title = yData.title;
         context.beginPath();
         context.setFontSize(titleFontSize);
-        context.setFillStyle(yData.titleFontColor || '#666666');
+        context.setFillStyle(yData.titleFontColor || '#606266');
         if(yAxisWidth.position=='left'){
           context.fillText(title, tStartLeft - measureText(title,titleFontSize)/2, opts.area[0]-10*opts.pixelRatio);
         }else{
@@ -3992,7 +3992,7 @@ function drawRadarDataPoints(series, opts, config, context) {
   var process = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
   var radarOption = assign({},{
     gridColor: '#cccccc',
-    labelColor: '#666666',
+    labelColor: '#606266',
     opacity: 0.2,
 		gridCount:3
   },opts.extra.radar);
@@ -4194,7 +4194,7 @@ function drawMapDataPoints(series, opts, config, context) {
   var mapOption=assign({},{
     border:true,
     borderWidth:1,
-    borderColor:'#666666',
+    borderColor:'#606266',
     fillOpacity:0.6,
     activeBorderColor:'#f04864',
     activeFillColor:'#facc14',
@@ -4252,7 +4252,7 @@ function drawMapDataPoints(series, opts, config, context) {
         let text=data[i].properties.name;
         context.beginPath();
         context.setFontSize(fontSize)
-        context.setFillStyle(data[i].textColor||'#666666')
+        context.setFillStyle(data[i].textColor||'#606266')
         context.fillText(text, point.x-measureText(text,fontSize)/2, point.y+fontSize/2);
         context.closePath();
         context.stroke();
@@ -4530,7 +4530,7 @@ function drawFunnelText(series, opts, context, eachSpacing, labelAlign,activeWid
       context.fill();
       context.beginPath();
       context.setFontSize(fontSize);
-      context.setFillStyle(item.textColor || '#666666');
+      context.setFillStyle(item.textColor || '#606266');
       context.fillText(text, endX+5, startY + fontSize/2 -2);
       context.closePath();
       context.stroke();
@@ -4559,7 +4559,7 @@ function drawFunnelText(series, opts, context, eachSpacing, labelAlign,activeWid
       context.fill();
       context.beginPath();
       context.setFontSize(fontSize);
-      context.setFillStyle(item.textColor || '#666666');
+      context.setFillStyle(item.textColor || '#606266');
       context.fillText(text, endX-5-measureText(text), startY + fontSize/2 -2);
       context.closePath();
       context.stroke();
@@ -5135,7 +5135,7 @@ var Charts = function Charts(opts) {
     dashLength: 4 * opts.pixelRatio,
     gridColor:'#cccccc',
     padding:10,
-    fontColor:'#666666'
+    fontColor:'#606266'
   }, opts.yAxis);
   opts.yAxis.dashLength *= opts.pixelRatio;
   opts.yAxis.padding *= opts.pixelRatio;
@@ -5162,7 +5162,7 @@ var Charts = function Charts(opts) {
     itemGap: 10,
     fontSize: opts.fontSize,
     lineHeight: opts.fontSize,
-    fontColor: '#333333',
+    fontColor: '#303133',
     format: {},
     hiddenColor: '#CECECE'
   }, opts.legend);

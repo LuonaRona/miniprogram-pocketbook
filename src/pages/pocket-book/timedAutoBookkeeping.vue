@@ -1,5 +1,9 @@
 <template>
   <view class="container">
+    <cu-custom bgColor="bg-primary-light" :isBack="true">
+      <block slot="backText">返回</block>
+      <block slot="content">定时自动记账</block>
+    </cu-custom>
     <view class="preview">
       <view class="pocket-book">
         <view class="pocket-book-icon"
@@ -16,7 +20,7 @@
           </text>
         </view>
       </view>
-      <view class="text-btn" @click="goBack">返回修改</view>
+      <view class="text-primary" @click="goBack">返回修改</view>
     </view>
     <view class="list">
       <view class="list-item">
@@ -81,44 +85,27 @@
       </template>
     </view>
     <view class="confirm">
-      <button type="primary"
+      <view
+        class="cu-btn bg-primary"
         :loading="saving"
-        @click="save">保存</button>
-      <button type="defualt" class="icon-button" @click="openHistoryList">
-        <image src="/static/history.png" class="icon"></image>
-      </button>
+        @click="save">保存</view>
+      <view class="cu-btn line-grey icon-btn" @click="openHistoryList">
+        <text class="cuIcon-time text-gray"></text>
+      </view>
     </view>
 
-    <uni-popup
-      ref="history"
-      type="center">
-      <view class="history-list">
-        <view class="pocket-book"
-          v-for="item in pendingList"
-          :key="item._id">
-          <view class="pocket-book-icon"
-            :style="'color:' + item.pocketbook.color">
-            <image :src="item.pocketbook.path"></image>
-          </view>
-          <view class="pocket-book-info">
-            <text class="type">{{ item.pocketbook.type_name }}</text>
-            <text class="amount">{{ item.pocketbook.amount | amount }}</text>
-            <text class="sub-text">
-              <text>{{ item.pocketbook.account_name }}</text>
-              <text>{{ item.pocketbook.type }}</text>
-              <text>{{ item.pocketbook.description }}</text>
-            </text>
-          </view>
-          <view class="switch">
-            <switch
-              style="transform: scale(0.7)"
-              :checked="!item.disable"
-              @change="onSwitchChange($event, item)" />
-            <text class="sub-text">{{ item.pocketbook._description }}</text>
-          </view>
-        </view>
-      </view>
-    </uni-popup>
+    <cu-modal
+      :visible.sync="modalVisible"
+      modalTitle="定时自动记账列表"
+      v-if="modalVisible">
+      <timed-auto-record-list
+        :list="pendingList"
+        @onSwitchChange="onSwitchChange($event)">
+      </timed-auto-record-list>
+    </cu-modal>
+
+    <loading ref="loading"></loading>
+    <message ref="msg"></message>
   </view>
 </template>
 <script>
@@ -140,6 +127,7 @@ import {
   monthSuboption,
   yearSuboption,
 } from '@/constant/duplicateModeMultiOption'
+import { TimedAutoRecordList } from '@/components/timed-auto-record-list/TimedAutoRecordList'
 
 export default {
   name: 'timed-automatic-bookkeeping',
@@ -153,8 +141,10 @@ export default {
       date: getTomorrowTime(),
       saving: false,
       currentPocketbook: {},
+      modalVisible: false,
     }
   },
+  components: { TimedAutoRecordList },
   filters: {
     formatDateAsText,
     getDuplicateModeText,
@@ -171,20 +161,28 @@ export default {
       this.setCurrentTimedAutoPocketbook(undefined)
       uni.navigateBack()
     },
-    onSwitchChange({ target: { value } }, item) {
-      const disable = !value
+    onSwitchChange(item) {
+      const disable = !item.checked
       const { _id } = item
 
-      uni.showLoading({
-        title: '正在保存',
-      })
+      this.$refs.loading.show({ title: disable ? '正在开启...' : '正在关闭...' })
       wx.cloud.init()
       wx.cloud.callFunction({
         name: 'updateTimedAutoBookkeeping',
         data: { _id, disable }
       }).then(() => {
         this.updateTimedAutoBookkeeping({ _id, disable })
-        uni.hideLoading()
+        this.$refs.loading.hide()
+        this.$refs.msg.show({
+          message: '修改成功！',
+          type: 'success'
+        })
+      }, () => {
+        this.$refs.loading.hide()
+        this.$refs.msg.show({
+          message: '修改失败！',
+          type: 'error'
+        })
       })
     },
     onCheckedChange({ target: { value } }) {
@@ -209,7 +207,7 @@ export default {
       this.duplicateModeValue = value
     },
     openHistoryList() {
-      this.$refs['history'].open()
+      this.modalVisible = true
     },
     getSubmitPocketbook(isRepeat) {
       const { account_id, amount, type, type_name, description } = this.currentPocketbook
@@ -227,6 +225,9 @@ export default {
     },
     save() {
       this.saving = true
+      this.$refs.loading.show({
+        title: '正在保存...'
+      })
       const [ mode, value ] = getDuplicateModeValue(this.duplicateModeValue)
       const { isRepeat, startDate, endDate } = this
       const pocketbook = this.getSubmitPocketbook(isRepeat)
@@ -249,8 +250,19 @@ export default {
         data: submitData
       }).then(() => {
         this.saving = false
-        uni.navigateBack({
-          delta: 2
+        this.$refs.loading.hide()
+        this.$refs.msg.show({
+          message: '保存成功！',
+          type: 'success',
+        })
+        uni.switchTab({
+          url: '/pages/tab-bar/PocketBook'
+        })
+      }, () => {
+        this.$refs.loading.hide()
+        this.$refs.msg.show({
+          message: '保存失败！',
+          type: 'error',
         })
       })
     },
@@ -263,13 +275,12 @@ export default {
     this.initDuplicateModeMultiOption()
     this.currentPocketbook = _.clone(this.currentTimedAutoPocketbook)
   },
-  components: { uniPopup }
 }
 </script>
 <style lang="scss" scoped>
 .container {
   height: 100%;
-  padding-bottom: 60px;
+  padding-bottom: 52px;
   box-sizing: border-box;
 }
 
@@ -279,9 +290,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px dashed #f1f2f7;
+  border-bottom: 1px dashed $light-grey;
   box-sizing: border-box;
-  background-color: #f1f2f7;
+  background-color: $light-grey;
 
   .pocket-book {
     display: flex;
@@ -320,96 +331,19 @@ export default {
       }
     }
   }
-
-  .text-btn {
-    font-size: 14px;
-    color: #FF6781;
-  }
-}
-
-.history-list {
-  padding: 0 10px;
-  width: 300px;
-  max-height: 400px;
-  border-radius: 10px;
-  overflow-y: auto;
-  background-color: #fff;
-  box-sizing: border-box;
-
-  .pocket-book {
-    padding-bottom: 5px;
-    margin: 5px 0;
-    border-bottom: 1px dashed #f1f2f7;
-    display: flex;
-    align-items: center;
-
-    &:last-of-type {
-      border-bottom: 0;
-    }
-
-    &-icon {
-      margin-right: 10px;
-      width: 36px;
-      height: 36px;
-      min-width: 36px;
-      min-height: 36px;
-      border-radius: 100%;
-      border: 1px solid;
-
-      & > image {
-        width: 100%;
-        height: 100%;
-        display: inline-block;
-      }
-    }
-
-    &-info {
-      font-size: 14px;
-      flex: 1 1 auto;
-
-      .amount {
-        margin-left: .5em;
-      }
-      .sub-text {
-        color: inherit;
-        font-size: 12px;
-        display: block;
-
-        text + text {
-          margin-left: .5em;
-        }
-
-        text:last-of-type {
-          color: #909390;
-        }
-      }
-    }
-  }
-  
-  .switch {
-    width: 55px;
-    text-align: center;
-
-    .sub-text {
-      text-align: center;
-      font-size: 12px;
-      color: #999;
-      display: block;
-    }
-  }
 }
 
 .list {
   padding: 0 10px;
-  height: calc(100% - 75px);
-  // background-color: #f1f2f7;
+  height: calc(100% - 143px);
+  // background-color: $light-grey;
   overflow: auto;
   box-sizing: border-box;
 
   &-item {
     padding: 10px 0;
     font-size: 16px;
-    border-bottom: 1px solid #f1f2f7;
+    border-bottom: 1px solid $light-grey;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -434,7 +368,7 @@ export default {
     }
 
     .placeholder {
-      color: #999;
+      color: $secondary-text;
     }
   }
 }
@@ -442,24 +376,15 @@ export default {
 .confirm {
   padding: 10px;
   display: flex;
+  justify-content: space-between;
   
-  button {
+  .cu-btn {
     flex: 1 1 auto;
-    font-size: 16px;
-  }
 
-  .icon-button {
-    margin-left: 10px;
-    padding: 0;
-    width: 50px;
-    flex: 0 0 auto;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-
-    image {
-      width: 30px;
-      height: 30px;
+    &.icon-btn {
+      margin-left: 10px;
+      max-width: 40px;
+      font-size: 18px;
     }
   }
 }

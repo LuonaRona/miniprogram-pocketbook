@@ -1,58 +1,61 @@
 <template>
-  <view class="container">
-    <view class="month-selector">
-      <picker class="month-picker"
-        :value="currentMonthIndex"
-        :range="monthList"
-        @change="onMonthChange">
-        <text>{{ monthList[currentMonthIndex] }}</text>
-      </picker>
+  <view class="page">
+    <cu-custom bgColor="bg-primary-light" :isBack="false">
+      <block slot="backText">
+        <user-info></user-info>
+      </block>
+      <block slot="content">记一笔</block>
+    </cu-custom>
+    <view class="section">
+      <view class="month-selector">
+        <picker class="month-picker"
+          :value="currentMonthIndex"
+          :range="monthList"
+          @change="onMonthChange">
+          <text class="cu-btn line-primary round">{{ monthList[currentMonthIndex] }}</text>
+        </picker>
+      </view>
+      <view class="month-total">
+        <month-total
+          :currentMonth="currentMonth"
+          :income="income"
+          :outlay="outlay">
+        </month-total>
+      </view>
+      <view class="pocketbook-button">
+        <pocketbook-button @click.native="navigateToCreate">记一笔</pocketbook-button>
+      </view>
+      <view class="content">
+        <pocketbook-list
+          :list="pocketbookList">
+        </pocketbook-list>
+      </view>
     </view>
-    <view class="header v-line">
-      <view class="header-item">
-        <view class="label">{{ currentMonth }}月收入</view>
-        <view class="amount">{{ income | amount }}</view>
-      </view>
-      <view class="header-item">
-        <view class="label">{{ currentMonth }}月支出</view>
-        <view class="amount">{{ outlay | amount }}</view>
-      </view>
-      <view class="pocket-book-btn" @click="navigateToCreate">
-        <image src="/static/pocket-book-pencil.png" class="btn-icon"></image>
-        <text class="btn-text">记一笔</text>
-      </view>
-    </view>
-    <view class="content">
-      <view class="list v-line" v-if="pocketbookList.length">
-        <view class="list-item" v-for="pocketbook in pocketbookList" :key="pocketbook.date">
-          <view class="list-item-line total">
-            <text>{{ pocketbook.date | formatDate }}</text>
-            <text>{{ pocketbook.total | amount }}</text>
-          </view>
-          <view class="list-item-line" v-for="pocket in pocketbook.list" :key="pocket._id" :class="pocket.type === '收入' ? 'lt' : 'rt'">
-            <view class="icon" :class="{'automatic': pocket.automatic }" :style="'color:' + pocket.color" @click="navigateToEdit(pocket)">
-              <image :src="pocket.path"></image>
-            </view>
-            <view class="pocket-book-item">
-              <text class="type">{{ pocket.type_name }}</text>
-              <text class="amount">{{ pocket.amount | amount }}</text>
-              <text class="sub-text">{{ pocket.description }}</text>
-            </view>
-          </view>
-        </view>
-      </view>
-      <view class="empty-text" v-else>你本月还没有开始记录哦</view>
-    </view>
+    <loading ref="loading"></loading>
+    <message ref="msg"></message>
   </view>
 </template>
 <script>
 import * as _ from 'lodash'
 import { mapMutations, mapGetters } from 'vuex'
-import { formatDate, formatMonth, getYearMonthArray, getTotalByType, getDateString, sortBy } from '@/utils/index'
+import {
+  formatDate,
+  formatMonth,
+  getYearMonthArray,
+  getTotalByType,
+  getDateString,
+  sortBy,
+} from '@/utils/index'
+import PocketbookButton from '@/components/pocketbook-button/PocketbookButton'
+import PocketbookList from '@/components/pocketbook-list/PocketbookList'
+import MonthTotal from '@/components/month-total/MonthTotal'
+import CreateUser from '@/components/create-user/CreateUser'
 const now = new Date()
 
 export default {
   name: 'pocket-book',
+  components: { MonthTotal, PocketbookButton, PocketbookList, CreateUser },
+  filters: { formatDate },
   data() {
     return {
       income: 0,
@@ -70,7 +73,6 @@ export default {
       allPocketbookList: 'getPocketbookList',
     })
   },
-  filters: { formatDate },
   methods: {
     onMonthChange({ target: { value } }) {
       const [year, month] = getYearMonthArray(this.monthList[value])
@@ -89,10 +91,6 @@ export default {
     },
     navigateToCreate() {
       this.setCurrentPocketbook(undefined)
-      this.navigateTo()
-    },
-    navigateToEdit(pocketbook) {
-      this.setCurrentPocketbook(pocketbook)
       this.navigateTo()
     },
     getCurrentMonthTotal(list) {
@@ -129,6 +127,7 @@ export default {
     onPageInit() {
       if (this.isLogined && this.allPocketbookList.length) {
         this.getPocketBookListByMonth(this.currentYear, this.currentMonth)
+        this.$refs.loading.hide()
       } else {
         setTimeout(() => {
           this.onPageInit()
@@ -137,226 +136,44 @@ export default {
     }
   },
   onShow() {
+    this.$refs.loading.show()
     this.onPageInit()
   }
 }
 </script>
 <style lang="scss" scoped>
-.container {
-  height: 100%;
-}
 .month-selector {
+  padding: 7px 0 5px 0;
   text-align: center;
 
   .month-picker {
-    margin-top: 10px;
     padding: 0 1rem;
     border-radius: 1rem;
-    border: 1px solid #f1f2f7;
     font-size: 12px;
-    line-height: 1.8;
+    line-height: 2;
     display: inline-block;
   }
-}
-.v-line {
-  position: relative;
 
-  &:after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 1px;
-    height: 100%;
-    display: block;
-    background-color: #f1f2f7;
-    z-index: -1;
+  .cu-btn {
+    height: 28px;
   }
 }
-.header {
-  position: relative;
-  padding: 15px 0;
-  display: flex;
 
-  &-item {
-    padding: 15px 10px;
-    text-align: center;
-    flex: 1;
-
-    .label {
-      color: #909399;
-      font-size: 14px;
-    }
-
-    .amount {
-      font-size: 24px;
-    }
-  }
-  
-  .pocket-book-btn {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translate(-50%, 50%);
-    width: 80px;
-    height: 80px;
-    text-align: center;
-    color: #FF6781;
-    border: 1px solid;
-    border-radius: 100%;
-    background-color: #fff;
-    z-index: 1;
-    cursor: pointer;
-
-    .btn-icon {
-      margin-top: 13px;
-      width: 35px;
-      height: 32.5px;
-      display: inline-block;
-    }
-
-    .btn-text {
-      font-size: 14px;
-      display: block;
-    }
-  }
+.month-total {
+  margin-bottom: -40px;
 }
+
+.pocketbook-button {
+  padding: 5px 0;
+  width: 100%;
+  z-index: 1;
+  background-color: $white;
+  text-align: center;
+}
+
 .content {
-  height: calc(100% - 149px);
+  height: calc(100% - 200px);
   overflow: auto;
 }
 
-.list {
-  padding-top: 50px;
-  margin-bottom: 35px;
-  box-sizing: border-box;
-
-  &-item {
-    padding-top: 15px;
-
-    &-line {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      &.lt {
-        justify-content: flex-end;
-        flex-direction: row-reverse;
-
-        .pocket-book-item {
-          text-align: right;
-
-          & > text {
-            margin: 0;
-            margin-right: .5rem;
-          }
-        }
-      }
-
-      &.rt {
-        justify-content: flex-end;
-        flex-direction: row;
-
-        .pocket-book-item {
-          text-align: left;
-
-          & > text {
-            margin: 0;
-            margin-left: .5rem;
-          }
-        }
-      }
-
-      &.total {
-        position: relative;
-
-        &:after {
-          content: "";
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-45%, -50%);
-          width: 8px;
-          height: 8px;
-          border-radius: 100%;
-          background-color: #ccc;
-          display: block;
-        }
-
-        & > text {
-          padding: 0 1em;
-          color: #909399;
-          font-size: 14px;
-          flex: 1;
-
-          &:first-of-type {
-            text-align: right;
-          }
-
-          &:last-of-type {
-            text-align: left;
-          }
-        }
-      }
-
-      .icon {
-        position: relative;
-        width: 35px;
-        height: 35px;
-        border-radius: 100%;
-        border: 1px solid;
-        background-color: #fff;
-        display: inline-block;
-        box-sizing: border-box;
-
-        & > image {
-          width: 80%;
-          height: 80%;
-          transform: translate(11%, 10%);
-        }
-      }
-
-      .automatic {
-        &:after {
-          content: "Auto";
-          position: absolute;
-          top: -7px;
-          left: 50%;
-          font-size: 12px;
-          line-height: 1;
-          transform: translate(-50%, -100%);
-        }
-      }
-
-      .pocket-book-item {
-        width: calc(50% - 17.5px);
-
-        .sub-text {
-          font-size: 12px;
-          color: #909399;
-          display: block;
-          text-overflow: ellipsis;
-        }
-
-        & > text {
-          font-size: 16px;
-          line-height: 16px;
-        }
-      }
-    }
-  }
-}
-.empty-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin: 0 auto;
-  color: #666;
-  font-size: 16px;
-  font-weight: 300;
-  text-align: center;
-  display: block;
-}
 </style>

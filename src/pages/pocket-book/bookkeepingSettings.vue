@@ -1,60 +1,62 @@
 <template>
   <view class="container">
-    <view class="pocketbook-type">
-      <view class="outlay"
-        :class="{'actived': isActivedTab('支出')}"
-        @click="onTypeChange('支出')">支出</view>
-      <view class="income"
-        :class="{'actived': isActivedTab('收入')}"
-        @click="onTypeChange('收入')">收入</view>
-      <view class="h-line"
-        :style="{ 'transform': isActivedTab('支出') ? 'translateX(0)' : 'translateX(100%)'}"></view>
-    </view>
+    <cu-custom bgColor="bg-primary-light" :isBack="true">
+      <block slot="backText">返回</block>
+      <block slot="content">收支类型管理</block>
+    </cu-custom>
+    <pocketbook-type-tab
+      :type="type"
+      @onTypeChange="onTypeChange($event)">
+    </pocketbook-type-tab>
     <view class="content">
       <view class="grid-title">显示的{{ type }}类型：</view>
       <view class="grid-icons" v-if="displayedTypes.length">
-        <view class="grid-item"
+        <bookkeeping-icon
+          class="grid-item"
+          badgeIconPath="/static/subtract-circle.png"
           v-for="(icon, index) in displayedTypes"
           :index="index"
+          :path="icon.path"
+          :name="icon.name"
+          :color="icon.color"
           :key="index"
-          @click="removeIconFromDList(icon)">
-          <view class="image-icon">
-            <image :src="icon.path"></image>
-            <image src="/static/subtract-circle.png" class="badge-icon"></image>
-          </view>
-          <text class="text">{{ icon.name }}</text>
-        </view>
+          @click.native="removeIconFromDList(icon)">
+        </bookkeeping-icon>
       </view>
-      <view class="grid-title">不显示的{{ type }}类型：</view>
-      <view class="grid-icons" v-if="hiddenListTypes.length">
-        <view class="grid-item"
+      <view class="grid-title">隐藏的{{ type }}类型：</view>
+      <view class="grid-icons">
+        <bookkeeping-icon
+          class="grid-item"
+          badgeIconPath="/static/add-circle.png"
           v-for="(icon, index) in hiddenListTypes"
           :index="index"
+          :path="icon.path"
+          :name="icon.name"
+          :color="icon.color"
           :key="index"
-          @click="removeIconFromHList(icon)">
-          <view class="image-icon">
-            <image :src="icon.path"></image>
-            <image src="/static/add-circle.png" class="badge-icon"></image>
-          </view>
-          <text class="text">{{ icon.name }}</text>
-        </view>
+          @click.native="removeIconFromHList(icon)">
+        </bookkeeping-icon>
       </view>
     </view>
-
     <view class="confirm">
-      <button class="confirm-primary"
-        type="primary"
+      <view
+        class="cu-btn bg-primary"
         :loading="saving"
-        @click="save">保存</button>
+        @click="save">保存</view>
     </view>
+    <loading ref="loading"></loading>
+    <message ref="msg"></message>
   </view>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+import BookkeepingIcon from '@/components/bookkeeping-icon/BookkeepingIcon'
+import PocketbookTypeTab from '@/components/pocketbook-type-tab/PocketbookTypeTab'
 
 export default {
   name: 'bookkeeping-settings',
+  components: { PocketbookTypeTab, BookkeepingIcon },
   data() {
     return {
       displayedList: [],
@@ -84,6 +86,7 @@ export default {
     },
     save() {
       this.saving = true
+      this.$refs.loading.show({ title: '正在保存...' })
       const bookkeepingTypes = _.map(this.displayedList, '_id')
 
       wx.cloud.init()
@@ -92,9 +95,19 @@ export default {
         data: { bookkeepingTypes }
       }).then(() => {
         this.updateUserBookkeepingTypes(bookkeepingTypes)
-        uni.navigateBack()
         this.saving = false
+        this.$refs.loading.hide()
+        this.$refs.msg.show({
+          message: '保存成功！',
+          type: 'success'
+        })
+        uni.navigateBack()
       }, () => {
+        this.$refs.loading.hide()
+        this.$refs.msg.show({
+          message: '保存失败！',
+          type: 'error'
+        })
         this.saving = false
       })
     },
@@ -133,6 +146,9 @@ export default {
   },
   created() {
     this.assortByDisplay()
+  },
+  onLoad({ type }) {
+    this.type = type
   }
 }
 </script>
@@ -151,43 +167,11 @@ export default {
   }
 }
 
-.pocketbook-type {
-  position: relative;
-  padding: 0 25px;
-  box-sizing: border-box;
-  display: flex;
-  
-  .income, .outlay {
-    padding: 0 5px;
-    font-size: 14px;
-    font-weight: bold;
-    line-height: 2;
-    text-align: center;
-    flex: 1;
-    cursor: pointer;
-
-    &.actived {
-      color: #FF6781;
-    }
-  }
-
-  .h-line {
-    position: absolute;
-    width: calc(50% - 25px);
-    height: 2px;
-    bottom: 0;
-    border-radius: 2px;
-    background-color: #FF6781;
-    transform: translateX(0);
-    transition: .3s all ease;
-  }
-}
-
 .grid-title {
   margin-top: 10px;
   padding: 0 15px;
   font-size: 12px;
-  color: #909399;
+  color: $secondary-text;
 }
 
 .grid-icons {
@@ -197,43 +181,6 @@ export default {
   .grid-item {
     margin: 5px 0;
     width: 20%;
-    font-size: 14px;
-    text-align: center;
-    cursor: pointer;
-
-    &.actived {
-      .image-icon {
-        border: 1px solid;
-      }
-    }
-
-    .image-icon {
-      position: relative;
-      margin: 5px auto;
-      width: 34px;
-      height: 34px;
-      color: inherit;
-      border-radius: 100%;
-      border: 1px solid transparent;
-
-      & > image {
-        margin-top: 2px;
-        width: 30px;
-        height: 30px;
-      }
-
-      .badge-icon {
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        width: 20px;
-        height: 20px;
-      }
-    }
-
-    .text.default-color {
-      color: #303133;
-    }
   }
 }
 
@@ -244,9 +191,8 @@ export default {
   padding: 10px;
   box-sizing: border-box;
 
-  .confirm-primary {
-    font-size: 16px;
-    line-height: 2.2;
+  .cu-btn {
+    width: 98%;
   }
 }
 </style>

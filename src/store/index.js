@@ -34,7 +34,10 @@ const store = new Vuex.Store({
 			state.accounts.push(account)
 		},
 		deleteAccountById(state, accountId) {
-			_.remove(state.accounts, ['account_id', accountId])
+			const list = state.accounts
+			state.accounts = list.filter((item) => {
+				return !_.isEqual(item._id, accountId)
+			})
 		},
 		updateAccountById(state, accountId, balance) {
 			const index = _.findIndex(state.accounts, ['account_id', accountId])
@@ -108,9 +111,19 @@ const store = new Vuex.Store({
 			const { _id, disable } = pocketbook
 			const index = _.findIndex(state.pendingPocketbookList, ['_id', _id])
 			state.pendingPocketbookList[index].disable = disable
+		},
+		updateAccountInfoById(state, account) {
+			const list = state.accounts
+			const { _id } = account
+			const index = _.findIndex(list, ['_id', _id])
+			list[index] = account
+			state.accounts = list
 		}
 	},
 	getters: {
+		userName(state) {
+			return state.userInfo ? state.userInfo.name : ''
+		},
 		getMyAssets(state) {
 			const accounts = state.accounts
 			let totalAssets = 0
