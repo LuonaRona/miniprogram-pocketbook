@@ -314,7 +314,8 @@ export default {
 
       return _.map(groupByName, (value, key) => {
         const sum = parseFloat(precision(_.sumBy(value, 'amount')))
-        const percentage = (sum / total * 100).toFixed(1) + '%'
+        const num = (sum / total * 100)
+        const percentage = _.isNaN(num) ? '100%': num.toFixed(1) + '%'
         const { path, color } = _.head(value)
         return {
           name: key,
