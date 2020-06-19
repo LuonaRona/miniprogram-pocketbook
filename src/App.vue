@@ -6,6 +6,7 @@
   export default Vue.extend({
     mpType: 'app',
     onLaunch() {
+      console.log(uni)
       uni.getSystemInfo({
         success: function(e) {
           // #ifndef MP

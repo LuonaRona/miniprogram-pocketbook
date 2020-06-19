@@ -8,12 +8,13 @@
       @change="onChange($event)">
       <view class="uni-input"
             :class="{ 'text-red': currentAccountListIndex < 0}">
-        {{ accountList[currentAccountListIndex].name || '账户不存在' }}
+        {{ currentAccountListIndex >= 0 ? accountList[currentAccountListIndex].name : '账户不存在' }}
       </view>
     </picker>
   </view>
 </template>
 <script>
+import * as _ from 'lodash'
 import { mapGetters } from 'vuex'
 
 export default {

@@ -36,16 +36,23 @@ export default {
         return true
       }
     },
-    confirm: Boolean,
-    visible: Boolean,
+    confirm: {
+      type: Boolean,
+      default() {
+        return false
+      }
+    },
+    visible: {
+      type: Boolean,
+      default() {
+        return false
+      }
+    },
   },
   methods: {
     hideModal() {
       this.$emit('update:visible', false)
     }
-  },
-  mounted() {
-    console.log(this.visible)
-  },
+  }
 }
 </script>

@@ -59,7 +59,7 @@ export default {
     show(options) {
       if (!options.message) return
 
-      const { message, type = 'default' } = options
+      const { message, type = 'info' } = options
       this.message = message
       this.type = type
       this.isShow = true

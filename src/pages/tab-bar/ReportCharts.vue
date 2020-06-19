@@ -390,7 +390,7 @@ export default {
     wx.createSelectorQuery().selectViewport().scrollOffset()
       .exec(([{ scrollWidth, scrollHeight }]) => {
         this.cWidth = scrollWidth * 2
-        this.cHeight = scrollHeight * 2 - 738
+        this.cHeight = scrollHeight * 2 - 838
       })
   },
   components: { CanvasPie, CanvasLine, CanvasPieDataList, CanvasLineDataList }

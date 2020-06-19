@@ -46,6 +46,8 @@ export default {
       this.isShow = false
     },
     submit() {
+      if (this.nameInvalid) { return }
+
       this.$emit('submit', this.name)
     }
   }

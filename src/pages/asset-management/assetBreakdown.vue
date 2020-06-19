@@ -220,7 +220,7 @@ export default {
 <style lang="scss" scoped>
 .container {
   position: relative;
-  height: calc(100% - 128px);
+  height: calc(100% - 148px);
   overflow: auto;
   background-color: $light-grey;
 }

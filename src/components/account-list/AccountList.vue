@@ -36,7 +36,6 @@ export default {
   },
   methods: {
     navigateToDetail(data) {
-      console.log(data)
       this.setCurrentAccount(data)
       uni.navigateTo({
         url: '/pages/asset-management/assetBreakdown',

@@ -165,7 +165,7 @@ export default {
       const disable = !item.checked
       const { _id } = item
 
-      this.$refs.loading.show({ title: disable ? '正在开启...' : '正在关闭...' })
+      this.$refs.loading.show({ title: disable ? '正在关闭...' : '正在开启...' })
       wx.cloud.init()
       wx.cloud.callFunction({
         name: 'updateTimedAutoBookkeeping',
@@ -335,8 +335,7 @@ export default {
 
 .list {
   padding: 0 10px;
-  height: calc(100% - 143px);
-  // background-color: $light-grey;
+  height: calc(100% - 168px);
   overflow: auto;
   box-sizing: border-box;
 

@@ -37,16 +37,10 @@ export default {
     automatic: {
       type: Boolean,
       required: true,
-      default: function() {
-        return false
-      }
     },
     showDirection: {
       type: String,
       required: true,
-      default: function() {
-        return 'ltr'
-      },
     },
     routeLink: String,
   }
