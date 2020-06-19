@@ -376,14 +376,17 @@ export default {
         return precision(value) - outList[index]
       })
     },
-  },
-  mounted() {
-    setTimeout(() => {
+    refresh() {
       if (this.isDateAll) {
         this.changeDateByAll()
       } else {
         this.changeDateByMonth(this.selectedDate)
       }
+    }
+  },
+  mounted() {
+    setTimeout(() => {
+      this.refresh()
     }, 100);
   },
   onShow() {
@@ -392,6 +395,9 @@ export default {
         this.cWidth = scrollWidth * 2
         this.cHeight = scrollHeight * 2 - 838
       })
+    setTimeout(() => {
+      this.refresh()
+    }, 100);
   },
   components: { CanvasPie, CanvasLine, CanvasPieDataList, CanvasLineDataList }
 }

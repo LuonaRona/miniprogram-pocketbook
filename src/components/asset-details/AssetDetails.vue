@@ -26,7 +26,7 @@ export default {
     netAssets: Number,
     debtAssets: Number,
     totalAssets: Number,
-  },
+  }
 }
 </script>
 

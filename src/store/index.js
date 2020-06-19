@@ -113,7 +113,7 @@ const store = new Vuex.Store({
 			state.pendingPocketbookList[index].disable = disable
 		},
 		updateAccountInfoById(state, account) {
-			const list = state.accounts
+			const list = [...state.accounts]
 			const { _id } = account
 			const index = _.findIndex(list, ['_id', _id])
 			list[index] = account
@@ -139,6 +139,9 @@ const store = new Vuex.Store({
 				netAssets: totalAssets - debtAssets,
 				accounts,
 			}
+		},
+		getAccountList(state) {
+			return state.accounts
 		},
 		getCurrentPocketbook(state) {
 			return state.currentPocketbook

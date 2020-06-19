@@ -15,7 +15,7 @@
         </asset-details>
       </view>
       <view class="list">
-        <account-list :list="accountList"></account-list>
+        <account-list :list="accounts"></account-list>
       </view>
     </view>
   </view>
@@ -31,10 +31,8 @@ export default {
   computed: {
     ...mapGetters({
       myAssets: 'getMyAssets',
-    }),
-    accountList() {
-      return this.myAssets.accounts
-    }
+      accounts: 'getAccountList',
+    })
   }
 }
 </script>
